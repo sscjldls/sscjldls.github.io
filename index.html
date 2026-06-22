@@ -1,0 +1,925 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>YourName — Game Dev / Freelancer</title>
+  <meta name="description" content="Independent game developer & freelance Unity/Unreal specialist. Shipping original games and building for studios." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700;800&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet" />
+
+  <style>
+    /* ─── RESET ─────────────────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+
+    /* ─── TOKENS ─────────────────────────────────────────────── */
+    :root {
+      --c-bg:          #07071A;
+      --c-deep:        #0C0C22;
+      --c-surface:     #12122C;
+      --c-surface-h:   #18183A;
+      --c-border:      #1C1C3D;
+      --c-border-l:    #272750;
+
+      --c-violet:      #7B5CF0;
+      --c-violet-l:    #9D7FF5;
+      --c-vglow:       rgba(123,92,240,0.14);
+      --c-vglow-s:     rgba(123,92,240,0.28);
+
+      --c-coral:       #FF4F6D;
+      --c-coral-l:     #FF7088;
+      --c-cglow:       rgba(255,79,109,0.14);
+
+      --c-text:        #EAEAFF;
+      --c-muted:       #6B6B9B;
+      --c-dim:         #37375A;
+
+      --font-d: 'Space Grotesk', sans-serif;
+      --font-b: 'Outfit', sans-serif;
+
+      --ease:   cubic-bezier(.4,0,.2,1);
+      --r:      12px;
+    }
+
+    /* ─── BASE ───────────────────────────────────────────────── */
+    body {
+      background: var(--c-bg);
+      color: var(--c-text);
+      font-family: var(--font-b);
+      font-size: 16px;
+      line-height: 1.65;
+      overflow-x: hidden;
+    }
+    h1,h2,h3,h4 { font-family: var(--font-d); line-height: 1.1; }
+    a { color: inherit; text-decoration: none; }
+    img { display: block; max-width: 100%; }
+    button { cursor: pointer; font-family: var(--font-b); }
+
+    ::-webkit-scrollbar { width: 5px; }
+    ::-webkit-scrollbar-track { background: var(--c-bg); }
+    ::-webkit-scrollbar-thumb { background: var(--c-border-l); border-radius: 3px; }
+    ::-webkit-scrollbar-thumb:hover { background: var(--c-violet); }
+    ::selection { background: var(--c-vglow-s); color: var(--c-text); }
+
+    /* ─── LAYOUT HELPERS ─────────────────────────────────────── */
+    .container {
+      max-width: 1180px;
+      margin: 0 auto;
+      padding: 0 40px;
+    }
+    .page-section {
+      padding: 110px 0;
+    }
+
+    /* ─── REVEAL ANIM ────────────────────────────────────────── */
+    .reveal {
+      opacity: 0;
+      transform: translateY(22px);
+      transition: opacity .65s var(--ease), transform .65s var(--ease);
+    }
+    .reveal.in { opacity: 1; transform: none; }
+
+    /* ─── NAV ────────────────────────────────────────────────── */
+    .nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 200;
+      padding: 22px 40px;
+      display: flex; align-items: center; justify-content: space-between;
+      transition: background .4s var(--ease), border-color .4s var(--ease);
+    }
+    .nav.scrolled {
+      background: rgba(7,7,26,.9);
+      backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--c-border);
+    }
+    .nav-logo {
+      font-family: var(--font-d);
+      font-weight: 800;
+      font-size: 1.2rem;
+      letter-spacing: -.03em;
+      color: var(--c-text);
+    }
+    .nav-logo .slash { color: var(--c-violet); }
+    .nav-links { display: flex; align-items: center; gap: 28px; list-style: none; }
+    .nav-links a {
+      font-size: .88rem; font-weight: 500; color: var(--c-muted);
+      transition: color .25s var(--ease); letter-spacing: .01em;
+    }
+    .nav-links a:hover { color: var(--c-text); }
+    .nav-hire {
+      padding: 9px 22px !important;
+      background: var(--c-violet) !important;
+      color: #fff !important;
+      border-radius: 7px;
+      font-weight: 600 !important;
+      transition: background .25s var(--ease), transform .25s var(--ease) !important;
+    }
+    .nav-hire:hover { background: var(--c-violet-l) !important; transform: translateY(-1px); }
+
+    /* hamburger */
+    .ham { display: none; background: none; border: none; flex-direction: column; gap: 5px; padding: 4px; z-index: 201; position: relative; }
+    .ham span { display: block; width: 22px; height: 2px; background: var(--c-text); border-radius: 2px; transition: all .3s var(--ease); }
+    .ham.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+    .ham.open span:nth-child(2) { opacity: 0; }
+    .ham.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
+    /* ─── HERO ───────────────────────────────────────────────── */
+    .hero {
+      min-height: 100vh;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      text-align: center;
+      padding: 120px 40px 80px;
+      position: relative; overflow: hidden;
+    }
+    .hero-aura {
+      position: absolute; inset: 0; pointer-events: none;
+      background:
+        radial-gradient(ellipse 70% 60% at 25% 55%, rgba(123,92,240,.09) 0%, transparent 65%),
+        radial-gradient(ellipse 55% 50% at 78% 45%, rgba(255,79,109,.07) 0%, transparent 60%);
+    }
+    .hero-grid {
+      position: absolute; inset: 0; pointer-events: none;
+      background-image:
+        linear-gradient(var(--c-border) 1px, transparent 1px),
+        linear-gradient(90deg, var(--c-border) 1px, transparent 1px);
+      background-size: 56px 56px;
+      opacity: .35;
+      mask-image: radial-gradient(ellipse 80% 80% at 50% 50%, black 0%, transparent 72%);
+    }
+    .hero-eyebrow {
+      font-size: .75rem; font-weight: 600;
+      letter-spacing: .18em; text-transform: uppercase;
+      color: var(--c-muted); margin-bottom: 28px;
+      position: relative;
+    }
+    .hero-title {
+      font-family: var(--font-d);
+      font-weight: 800;
+      letter-spacing: -.04em;
+      line-height: .95;
+      position: relative;
+    }
+    .hero-word { display: block; font-size: clamp(3.2rem, 9vw, 7.5rem); }
+    .hero-word.game { color: var(--c-text); }
+    .hero-word.freelance { color: var(--c-coral); }
+    .hero-slash {
+      display: block;
+      font-size: clamp(4rem, 11vw, 9rem);
+      color: var(--c-violet);
+      line-height: 1;
+      letter-spacing: -.06em;
+      animation: slash-glow 3.5s ease-in-out infinite;
+      text-shadow: 0 0 60px rgba(123,92,240,.5);
+    }
+    @keyframes slash-glow {
+      0%,100% { text-shadow: 0 0 40px rgba(123,92,240,.35); }
+      50%      { text-shadow: 0 0 100px rgba(123,92,240,.7), 0 0 160px rgba(123,92,240,.2); }
+    }
+    .hero-sub {
+      font-size: clamp(.95rem, 2vw, 1.1rem);
+      color: var(--c-muted);
+      max-width: 460px;
+      margin: 32px auto 48px;
+      font-weight: 400;
+      line-height: 1.75;
+      position: relative;
+    }
+    .hero-actions {
+      display: flex; gap: 14px;
+      justify-content: center; flex-wrap: wrap;
+      position: relative;
+    }
+    .btn {
+      display: inline-flex; align-items: center; gap: 7px;
+      padding: 13px 28px; border-radius: 8px;
+      font-weight: 600; font-size: .95rem;
+      transition: all .28s var(--ease); border: none;
+      white-space: nowrap;
+    }
+    .btn-violet { background: var(--c-violet); color: #fff; }
+    .btn-violet:hover {
+      background: var(--c-violet-l);
+      transform: translateY(-2px);
+      box-shadow: 0 10px 32px var(--c-vglow-s);
+    }
+    .btn-ghost {
+      background: transparent; color: var(--c-text);
+      border: 1px solid var(--c-border-l);
+    }
+    .btn-ghost:hover {
+      background: var(--c-surface);
+      border-color: var(--c-coral);
+      color: var(--c-coral);
+      transform: translateY(-2px);
+    }
+    .hero-scroll {
+      position: absolute; bottom: 32px; left: 50%; transform: translateX(-50%);
+      display: flex; flex-direction: column; align-items: center; gap: 8px;
+      color: var(--c-dim); font-size: .7rem; letter-spacing: .12em; text-transform: uppercase;
+    }
+    .scroll-bar {
+      width: 1px; height: 48px;
+      background: linear-gradient(to bottom, var(--c-violet), transparent);
+      animation: scroll-bar 2.2s ease-in-out infinite;
+    }
+    @keyframes scroll-bar {
+      0%,100% { opacity: .25; transform: scaleY(.5); transform-origin: top; }
+      50%      { opacity: 1;   transform: scaleY(1);  transform-origin: top; }
+    }
+
+    /* ─── MARQUEE ────────────────────────────────────────────── */
+    .marquee-wrap {
+      background: var(--c-deep);
+      border-top: 1px solid var(--c-border);
+      border-bottom: 1px solid var(--c-border);
+      padding: 22px 0;
+      overflow: hidden;
+    }
+    .marquee-track {
+      display: flex; gap: 10px;
+      width: max-content;
+      animation: marquee 30s linear infinite;
+    }
+    .marquee-wrap:hover .marquee-track { animation-play-state: paused; }
+    @keyframes marquee {
+      from { transform: translateX(0); }
+      to   { transform: translateX(-50%); }
+    }
+    .pill {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 7px 16px;
+      background: var(--c-surface); border: 1px solid var(--c-border);
+      border-radius: 100px;
+      font-size: .83rem; font-weight: 500; color: var(--c-muted);
+      white-space: nowrap;
+    }
+    .pill-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+
+    /* ─── SECTION HEADER ─────────────────────────────────────── */
+    .sec-eye {
+      font-size: .72rem; font-weight: 700;
+      letter-spacing: .18em; text-transform: uppercase;
+      color: var(--c-violet); margin-bottom: 10px;
+    }
+    .sec-title {
+      font-size: clamp(1.75rem, 4vw, 2.9rem);
+      font-weight: 800; letter-spacing: -.035em;
+      color: var(--c-text); margin-bottom: 14px;
+    }
+    .sec-desc {
+      color: var(--c-muted); font-size: 1rem;
+      max-width: 520px; line-height: 1.75; margin-bottom: 44px;
+    }
+
+    /* ─── FILTER BAR ─────────────────────────────────────────── */
+    .filter-bar {
+      display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 36px;
+    }
+    .f-btn {
+      padding: 7px 18px; border-radius: 100px;
+      font-size: .84rem; font-weight: 500;
+      border: 1px solid var(--c-border);
+      background: transparent; color: var(--c-muted);
+      transition: all .24s var(--ease); letter-spacing: .02em;
+    }
+    .f-btn:hover, .f-btn.active {
+      background: var(--c-violet); border-color: var(--c-violet); color: #fff;
+    }
+
+    /* ─── GAME GRID ──────────────────────────────────────────── */
+    .games-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+      gap: 22px;
+    }
+    .game-card {
+      background: var(--c-surface); border: 1px solid var(--c-border);
+      border-radius: var(--r); overflow: hidden;
+      transition: all .3s var(--ease);
+    }
+    .game-card:hover {
+      border-color: var(--c-violet);
+      transform: translateY(-5px);
+      box-shadow: 0 22px 60px rgba(0,0,0,.45), 0 0 0 1px var(--c-violet);
+    }
+    .game-card.hidden { display: none; }
+    .game-thumb {
+      width: 100%; aspect-ratio: 16/9;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 2.5rem; position: relative; overflow: hidden;
+    }
+    /* scanline overlay on thumbnails */
+    .game-thumb::after {
+      content: '';
+      position: absolute; inset: 0;
+      background: repeating-linear-gradient(
+        0deg, transparent, transparent 2px,
+        rgba(0,0,0,.12) 2px, rgba(0,0,0,.12) 4px
+      );
+      pointer-events: none;
+    }
+    .game-body { padding: 20px 22px 24px; }
+    .game-tags { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 11px; }
+    .gtag {
+      font-size: .68rem; font-weight: 700;
+      letter-spacing: .08em; text-transform: uppercase;
+      padding: 3px 9px; border-radius: 4px;
+      border: 1px solid var(--c-border); color: var(--c-dim);
+      background: var(--c-deep);
+    }
+    .gtag.unity   { color: #5B8DEF; border-color: rgba(91,141,239,.3); background: rgba(91,141,239,.07); }
+    .gtag.unreal  { color: #1EC8A3; border-color: rgba(30,200,163,.3); background: rgba(30,200,163,.07); }
+    .gtag.cs      { color: #B07FFF; border-color: rgba(176,127,255,.3); background: rgba(176,127,255,.07); }
+    .gtag.art3d   { color: #FF9A3C; border-color: rgba(255,154,60,.3); background: rgba(255,154,60,.07); }
+    .gtag.twoD    { color: #FF4F6D; border-color: rgba(255,79,109,.3); background: rgba(255,79,109,.07); }
+    .game-title {
+      font-family: var(--font-d);
+      font-size: 1.18rem; font-weight: 700;
+      letter-spacing: -.02em; color: var(--c-text); margin-bottom: 6px;
+    }
+    .game-desc { font-size: .87rem; color: var(--c-muted); line-height: 1.65; margin-bottom: 16px; }
+    .game-link {
+      display: inline-flex; align-items: center; gap: 6px;
+      font-size: .87rem; font-weight: 600;
+      color: var(--c-violet);
+      transition: gap .22s var(--ease), color .22s var(--ease);
+    }
+    .game-link:hover { color: var(--c-violet-l); gap: 10px; }
+
+    /* ─── SERVICES ───────────────────────────────────────────── */
+    .services-section {
+      background: var(--c-deep);
+      border-top: 1px solid var(--c-border);
+      border-bottom: 1px solid var(--c-border);
+    }
+    .services-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 22px;
+    }
+    .svc-card {
+      background: var(--c-bg); border: 1px solid var(--c-border);
+      border-radius: var(--r); padding: 36px 30px;
+      transition: all .3s var(--ease); position: relative; overflow: hidden;
+    }
+    .svc-card::after {
+      content: '';
+      position: absolute; top: 0; left: 0; right: 0; height: 2px;
+      background: linear-gradient(90deg, var(--c-violet), var(--c-coral));
+      opacity: 0; transition: opacity .3s var(--ease);
+    }
+    .svc-card:hover { border-color: var(--c-border-l); transform: translateY(-5px); }
+    .svc-card:hover::after { opacity: 1; }
+    .svc-card.featured { border-color: var(--c-violet); background: var(--c-surface); }
+    .svc-card.featured::after { opacity: 1; }
+    .svc-badge {
+      display: inline-block;
+      font-size: .67rem; font-weight: 700;
+      letter-spacing: .1em; text-transform: uppercase;
+      color: var(--c-coral);
+      background: var(--c-cglow); border: 1px solid rgba(255,79,109,.3);
+      padding: 3px 10px; border-radius: 4px; margin-bottom: 18px;
+    }
+    .svc-icon { font-size: 2rem; margin-bottom: 14px; display: block; }
+    .svc-name {
+      font-family: var(--font-d); font-size: 1.35rem; font-weight: 700;
+      letter-spacing: -.025em; color: var(--c-text); margin-bottom: 6px;
+    }
+    .svc-price {
+      font-family: var(--font-d); font-size: 2.1rem; font-weight: 800;
+      letter-spacing: -.05em; color: var(--c-violet); margin-bottom: 2px;
+    }
+    .svc-price-note { font-size: .78rem; color: var(--c-dim); margin-bottom: 18px; }
+    .svc-desc { font-size: .88rem; color: var(--c-muted); line-height: 1.7; margin-bottom: 22px; }
+    .svc-list { list-style: none; margin-bottom: 28px; }
+    .svc-list li {
+      display: flex; align-items: center; gap: 9px;
+      font-size: .875rem; color: var(--c-muted);
+      padding: 7px 0; border-bottom: 1px solid var(--c-border);
+    }
+    .svc-list li:last-child { border-bottom: none; }
+    .svc-list li::before { content: '→'; color: var(--c-violet); font-size: .78rem; flex-shrink: 0; }
+
+    /* ─── CONTACT ────────────────────────────────────────────── */
+    .contact-layout {
+      display: grid; grid-template-columns: 1fr 1.5fr; gap: 80px; align-items: start;
+    }
+    .contact-sticky { position: sticky; top: 120px; }
+    .contact-links { margin-top: 32px; display: flex; flex-direction: column; gap: 10px; }
+    .c-link {
+      display: flex; align-items: center; gap: 12px;
+      padding: 12px 16px; background: var(--c-surface);
+      border: 1px solid var(--c-border); border-radius: 8px;
+      font-size: .88rem; font-weight: 500; color: var(--c-muted);
+      transition: all .25s var(--ease);
+    }
+    .c-link:hover { border-color: var(--c-violet); color: var(--c-text); }
+    .c-link-icon {
+      width: 32px; height: 32px; background: var(--c-deep);
+      border-radius: 6px; display: flex; align-items: center; justify-content: center;
+      font-size: 1rem; flex-shrink: 0;
+    }
+
+    /* form */
+    .contact-form { display: flex; flex-direction: column; gap: 16px; }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .form-group { display: flex; flex-direction: column; gap: 6px; }
+    .form-label {
+      font-size: .75rem; font-weight: 600;
+      letter-spacing: .06em; text-transform: uppercase; color: var(--c-muted);
+    }
+    .form-field {
+      background: var(--c-surface); border: 1px solid var(--c-border);
+      border-radius: 8px; padding: 12px 16px;
+      color: var(--c-text); font-family: var(--font-b); font-size: .95rem;
+      transition: all .25s var(--ease); outline: none; width: 100%;
+    }
+    .form-field:focus {
+      border-color: var(--c-violet);
+      background: var(--c-surface-h);
+      box-shadow: 0 0 0 3px var(--c-vglow);
+    }
+    .form-field::placeholder { color: var(--c-dim); }
+    select.form-field { appearance: none; cursor: pointer; }
+    select.form-field option { background: var(--c-deep); }
+    textarea.form-field { resize: vertical; min-height: 130px; }
+    .form-submit { width: 100%; padding: 15px; font-size: 1rem; margin-top: 4px; }
+    .form-success {
+      display: none; background: rgba(30,200,163,.1);
+      border: 1px solid rgba(30,200,163,.3); border-radius: 8px;
+      padding: 16px; text-align: center; color: #1EC8A3; font-size: .9rem;
+    }
+    .form-success.show { display: block; }
+
+    /* ─── FOOTER ─────────────────────────────────────────────── */
+    .footer {
+      background: var(--c-deep);
+      border-top: 1px solid var(--c-border);
+      padding: 36px 40px;
+    }
+    .footer-inner {
+      max-width: 1180px; margin: 0 auto;
+      display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 14px;
+    }
+    .footer-logo { font-family: var(--font-d); font-weight: 800; font-size: 1.05rem; letter-spacing: -.02em; color: var(--c-muted); }
+    .footer-logo .slash { color: var(--c-violet); }
+    .footer-copy { font-size: .8rem; color: var(--c-dim); }
+    .footer-nav { display: flex; gap: 22px; list-style: none; }
+    .footer-nav a { font-size: .8rem; color: var(--c-dim); transition: color .22s var(--ease); }
+    .footer-nav a:hover { color: var(--c-muted); }
+
+    /* ─── MOBILE ─────────────────────────────────────────────── */
+    @media (max-width: 800px) {
+      .nav { padding: 16px 24px; }
+      .nav-links {
+        display: none; position: fixed; inset: 0; z-index: 199;
+        background: var(--c-bg); flex-direction: column; justify-content: center;
+        align-items: center; gap: 36px;
+      }
+      .nav-links.open { display: flex; }
+      .nav-links a { font-size: 1.4rem; color: var(--c-text) !important; }
+      .nav-links .nav-hire { padding: 12px 32px !important; font-size: 1.1rem !important; }
+      .ham { display: flex; }
+
+      .hero { padding: 90px 24px 70px; }
+      .container { padding: 0 24px; }
+      .page-section { padding: 80px 0; }
+      .games-grid { grid-template-columns: 1fr; }
+      .services-grid { grid-template-columns: 1fr; }
+      .contact-layout { grid-template-columns: 1fr; gap: 50px; }
+      .contact-sticky { position: static; }
+      .form-row { grid-template-columns: 1fr; }
+      .footer-inner { flex-direction: column; text-align: center; }
+      .footer-nav { justify-content: center; }
+    }
+    @media (max-width: 480px) {
+      .hero-actions { flex-direction: column; align-items: center; }
+      .btn { width: 100%; justify-content: center; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ═══ NAV ════════════════════════════════════════════════ -->
+  <nav class="nav" id="nav">
+    <a href="#" class="nav-logo">Dev<span class="slash">/</span>Play</a>
+    <button class="ham" id="ham" aria-label="Toggle menu">
+      <span></span><span></span><span></span>
+    </button>
+    <ul class="nav-links" id="navLinks">
+      <li><a href="#games">Games</a></li>
+      <li><a href="#services">Services</a></li>
+      <li><a href="#contact">Contact</a></li>
+      <li><a href="#contact" class="nav-hire">Hire Me</a></li>
+    </ul>
+  </nav>
+
+  <!-- ═══ HERO ════════════════════════════════════════════════ -->
+  <section class="hero" id="home">
+    <div class="hero-aura"></div>
+    <div class="hero-grid"></div>
+
+    <p class="hero-eyebrow reveal">Available for new projects &nbsp;·&nbsp; [Your City]</p>
+
+    <h1 class="hero-title">
+      <span class="hero-word game reveal" style="transition-delay:.08s">GAME</span>
+      <span class="hero-slash reveal" style="transition-delay:.18s">/</span>
+      <span class="hero-word freelance reveal" style="transition-delay:.28s">FREELANCE</span>
+    </h1>
+
+    <p class="hero-sub reveal" style="transition-delay:.4s">
+      I ship independent games and help studios build theirs.
+      Unity &amp; Unreal specialist — from first prototype to final release.
+    </p>
+
+    <div class="hero-actions reveal" style="transition-delay:.52s">
+      <a href="#games"    class="btn btn-violet">▶&nbsp; View My Games</a>
+      <a href="#services" class="btn btn-ghost">Hire Me &nbsp;→</a>
+    </div>
+
+    <div class="hero-scroll">
+      <div class="scroll-bar"></div>
+      <span>scroll</span>
+    </div>
+  </section>
+
+  <!-- ═══ MARQUEE ══════════════════════════════════════════════ -->
+  <div class="marquee-wrap" id="about">
+    <div class="marquee-track" id="marqueeTrack">
+      <!-- Pills duplicated in JS for seamless loop -->
+    </div>
+  </div>
+
+  <!-- ═══ PORTFOLIO ════════════════════════════════════════════ -->
+  <section class="page-section" id="games" style="background: var(--c-bg);">
+    <div class="container">
+      <p class="sec-eye reveal">Portfolio</p>
+      <h2 class="sec-title reveal">Independent Games</h2>
+      <p class="sec-desc reveal">Built from scratch — concept through launch. Each title is a systems-design experiment shipped on Itch.io.</p>
+
+      <div class="filter-bar reveal">
+        <button class="f-btn active" data-filter="all">All</button>
+        <button class="f-btn" data-filter="unity">#Unity</button>
+        <button class="f-btn" data-filter="unreal">#Unreal</button>
+        <button class="f-btn" data-filter="cs">#C#</button>
+        <button class="f-btn" data-filter="art3d">#3D Art</button>
+        <button class="f-btn" data-filter="twoD">#2D</button>
+      </div>
+
+      <div class="games-grid" id="gamesGrid">
+        <!-- Cards injected by JS -->
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ SERVICES ═════════════════════════════════════════════ -->
+  <section class="page-section services-section" id="services">
+    <div class="container">
+      <p class="sec-eye reveal">Freelance</p>
+      <h2 class="sec-title reveal">What I Build For You</h2>
+      <p class="sec-desc reveal">Studio-quality execution, indie-dev speed. I embed into your team or take a project from brief to deliverable.</p>
+
+      <div class="services-grid">
+
+        <div class="svc-card reveal">
+          <span class="svc-icon">⚡</span>
+          <div class="svc-name">Gameplay Prototype</div>
+          <div class="svc-price">$800</div>
+          <div class="svc-price-note">per prototype · 1–2 week turnaround</div>
+          <p class="svc-desc">Rapid proof-of-concept builds to validate a core mechanic before committing to full development.</p>
+          <ul class="svc-list">
+            <li>Core mechanic implementation</li>
+            <li>Unity or Unreal Engine</li>
+            <li>Playable WebGL / desktop build</li>
+            <li>Full source code handoff</li>
+          </ul>
+          <a href="#contact" class="btn btn-ghost" style="width:100%; justify-content:center;">Get a Prototype →</a>
+        </div>
+
+        <div class="svc-card featured reveal" style="transition-delay:.1s">
+          <span class="svc-badge">Most Popular</span>
+          <span class="svc-icon">🎮</span>
+          <div class="svc-name">Full Game Development</div>
+          <div class="svc-price">Custom</div>
+          <div class="svc-price-note">scoped per project · milestone billing</div>
+          <p class="svc-desc">End-to-end development of your game — from GDD to launch-ready build, solo or as embedded developer.</p>
+          <ul class="svc-list">
+            <li>Game design document review</li>
+            <li>Full feature implementation</li>
+            <li>Systems architecture &amp; code</li>
+            <li>QA, optimization &amp; launch</li>
+            <li>30-day post-launch support</li>
+          </ul>
+          <a href="#contact" class="btn btn-violet" style="width:100%; justify-content:center;">Start a Project →</a>
+        </div>
+
+        <div class="svc-card reveal" style="transition-delay:.2s">
+          <span class="svc-icon">🎨</span>
+          <div class="svc-name">Asset &amp; Art Integration</div>
+          <div class="svc-price">$300</div>
+          <div class="svc-price-note">per asset pack · ongoing retainer available</div>
+          <p class="svc-desc">3D models, rigs, shaders, VFX, and animation systems integrated cleanly into your existing project.</p>
+          <ul class="svc-list">
+            <li>Blender → Unity / Unreal pipeline</li>
+            <li>Custom shader &amp; VFX work</li>
+            <li>Performance-optimized assets</li>
+            <li>LOD setup &amp; atlasing</li>
+          </ul>
+          <a href="#contact" class="btn btn-ghost" style="width:100%; justify-content:center;">Get Assets →</a>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ CONTACT ══════════════════════════════════════════════ -->
+  <section class="page-section" id="contact" style="background: var(--c-bg);">
+    <div class="container">
+      <div class="contact-layout">
+
+        <div class="contact-sticky">
+          <p class="sec-eye reveal">Contact</p>
+          <h2 class="sec-title reveal">Let's Build<br>Something.</h2>
+          <p class="sec-desc reveal" style="margin-bottom: 0;">
+            Whether you're a recruiter, a studio, or a solo dev — reach out and I'll reply within 24 hours.
+          </p>
+          <div class="contact-links">
+            <a href="mailto:you@youremail.com" class="c-link reveal">
+              <span class="c-link-icon">✉</span>
+              you@youremail.com
+            </a>
+            <a href="https://github.com/yourusername" target="_blank" rel="noopener" class="c-link reveal" style="transition-delay:.08s">
+              <span class="c-link-icon">
+                <!-- GitHub SVG -->
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="color:var(--c-muted)">
+                  <path d="M12 0C5.374 0 0 5.373 0 12c0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23A11.509 11.509 0 0 1 12 5.803c1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576C20.566 21.797 24 17.3 24 12c0-6.627-5.373-12-12-12z"/>
+                </svg>
+              </span>
+              github.com/yourusername
+            </a>
+            <a href="https://linkedin.com/in/yourprofile" target="_blank" rel="noopener" class="c-link reveal" style="transition-delay:.16s">
+              <span class="c-link-icon">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="color:var(--c-muted)">
+                  <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 0 1-2.063-2.065 2.064 2.064 0 1 1 2.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/>
+                </svg>
+              </span>
+              linkedin.com/in/yourprofile
+            </a>
+          </div>
+        </div>
+
+        <form
+          class="contact-form reveal"
+          action="https://api.web3forms.com/submit"
+          method="POST"
+          id="contactForm"
+        >
+          <!-- Replace YOUR_ACCESS_KEY with your Web3Forms key from web3forms.com -->
+          <input type="hidden" name="access_key" value="YOUR_ACCESS_KEY" />
+          <input type="hidden" name="subject" value="New enquiry from portfolio site" />
+          <input type="checkbox" name="botcheck" style="display:none;" />
+
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label" for="f-name">Name</label>
+              <input class="form-field" id="f-name" name="name" type="text" placeholder="Alex Johnson" required />
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="f-email">Email</label>
+              <input class="form-field" id="f-email" name="email" type="email" placeholder="alex@studio.com" required />
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="f-type">I'm a...</label>
+            <select class="form-field" id="f-type" name="type">
+              <option value="" disabled selected>Select one</option>
+              <option>Studio / Recruiter</option>
+              <option>Indie Developer</option>
+              <option>Freelance Client</option>
+              <option>Other</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="f-service">Service needed</label>
+            <select class="form-field" id="f-service" name="service">
+              <option value="" disabled selected>Select a service</option>
+              <option>Gameplay Prototype</option>
+              <option>Full Game Development</option>
+              <option>Asset &amp; Art Integration</option>
+              <option>General Enquiry</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="f-msg">Tell me about the project</label>
+            <textarea class="form-field" id="f-msg" name="message" placeholder="A brief overview of your project, timeline, and budget…" required></textarea>
+          </div>
+
+          <button type="submit" class="btn btn-violet form-submit" id="submitBtn">
+            Send Message &nbsp;→
+          </button>
+          <div class="form-success" id="formSuccess">
+            ✓ &nbsp; Message sent! I'll be in touch within 24 hours.
+          </div>
+        </form>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ FOOTER ═══════════════════════════════════════════════ -->
+  <footer class="footer">
+    <div class="footer-inner">
+      <span class="footer-logo">Dev<span class="slash">/</span>Play</span>
+      <span class="footer-copy">© <span id="year"></span> YourName. Built for GitHub Pages.</span>
+      <ul class="footer-nav">
+        <li><a href="#home">Home</a></li>
+        <li><a href="#games">Games</a></li>
+        <li><a href="#services">Services</a></li>
+        <li><a href="#contact">Contact</a></li>
+      </ul>
+    </div>
+  </footer>
+
+  <!-- ═══ JS ════════════════════════════════════════════════════ -->
+  <script>
+    /* ── DATA ─────────────────────────────────────────────── */
+    const SKILLS = [
+      { label: 'Unity Engine',       color: '#5B8DEF' },
+      { label: 'Unreal Engine',      color: '#1EC8A3' },
+      { label: 'C#',                 color: '#B07FFF' },
+      { label: '3D Art / Blender',   color: '#FF9A3C' },
+      { label: '2D / Pixel Art',     color: '#FF4F6D' },
+      { label: 'Shader Programming', color: '#5B8DEF' },
+      { label: 'Game Design',        color: '#1EC8A3' },
+      { label: 'Level Design',       color: '#B07FFF' },
+      { label: 'Rapid Prototyping',  color: '#FF9A3C' },
+      { label: 'VFX / Particles',    color: '#FF4F6D' },
+    ];
+
+    const GAMES = [
+      {
+        title: 'Void Protocol',
+        tags: ['unity', 'cs', 'art3d'],
+        tagLabels: [['Unity','unity'],['C#','cs'],['3D Art','art3d']],
+        desc: 'A first-person sci-fi shooter where time slows when you stand still. Procedural level generation meets tight gunplay.',
+        bg: 'linear-gradient(140deg,#080820 0%,#14082E 55%,#081422 100%)',
+        emoji: '🎮',
+        link: 'https://itch.io',
+      },
+      {
+        title: 'Ember Cult',
+        tags: ['unreal', 'art3d'],
+        tagLabels: [['Unreal','unreal'],['3D Art','art3d']],
+        desc: 'A dark-fantasy action RPG with fully hand-crafted environments. Unreal 5 with Lumen real-time global illumination.',
+        bg: 'linear-gradient(140deg,#1A0600 0%,#2C0E00 55%,#1A0800 100%)',
+        emoji: '🔥',
+        link: 'https://itch.io',
+      },
+      {
+        title: 'Grid Runner',
+        tags: ['unity', 'cs', 'twoD'],
+        tagLabels: [['Unity','unity'],['C#','cs'],['2D','twoD']],
+        desc: 'A 2D puzzle-platformer with grid-based movement. The world reconfigures every 10 seconds, forcing reactive play.',
+        bg: 'linear-gradient(140deg,#001A0C 0%,#002E10 55%,#001A20 100%)',
+        emoji: '🟦',
+        link: 'https://itch.io',
+      },
+      {
+        title: 'Neon Drift',
+        tags: ['unreal', 'art3d', 'cs'],
+        tagLabels: [['Unreal','unreal'],['3D Art','art3d']],
+        desc: 'A synthwave racing game with custom vehicle physics. 5 tracks, 3 cars, adaptive music that shifts with your speed.',
+        bg: 'linear-gradient(140deg,#000A1A 0%,#001030 55%,#0A0022 100%)',
+        emoji: '🌊',
+        link: 'https://itch.io',
+      },
+      {
+        title: 'Shadow Keep',
+        tags: ['unity', 'art3d', 'cs'],
+        tagLabels: [['Unity','unity'],['3D Art','art3d'],['C#','cs']],
+        desc: 'A third-person puzzle game where light is your only weapon. Manipulation of real-time shadows is the core mechanic.',
+        bg: 'linear-gradient(140deg,#100A00 0%,#1E1000 55%,#100A12 100%)',
+        emoji: '🏰',
+        link: 'https://itch.io',
+      },
+      {
+        title: 'Pulse',
+        tags: ['unity', 'cs', 'twoD'],
+        tagLabels: [['Unity','unity'],['C#','cs'],['2D','twoD']],
+        desc: 'A rhythm-action game that analyzes any imported MP3 and generates a fully playable level. Built in 72h for a game jam.',
+        bg: 'linear-gradient(140deg,#0A0016 0%,#160026 55%,#0A001C 100%)',
+        emoji: '🎵',
+        link: 'https://itch.io',
+      },
+    ];
+
+    /* ── MARQUEE ──────────────────────────────────────────── */
+    const track = document.getElementById('marqueeTrack');
+    const pillHTML = SKILLS.map(s =>
+      `<span class="pill"><span class="pill-dot" style="background:${s.color}"></span>${s.label}</span>`
+    ).join('');
+    track.innerHTML = pillHTML + pillHTML; // duplicate for seamless loop
+
+    /* ── GAME CARDS ───────────────────────────────────────── */
+    const grid = document.getElementById('gamesGrid');
+    GAMES.forEach((g, i) => {
+      const tagsHTML = g.tagLabels
+        .map(([l, c]) => `<span class="gtag ${c}">${l}</span>`).join('');
+      grid.innerHTML += `
+        <div class="game-card reveal" data-tags="${g.tags.join(' ')}" style="transition-delay:${i * .07}s">
+          <div class="game-thumb" style="background:${g.bg}">${g.emoji}</div>
+          <div class="game-body">
+            <div class="game-tags">${tagsHTML}</div>
+            <h3 class="game-title">${g.title}</h3>
+            <p class="game-desc">${g.desc}</p>
+            <a href="${g.link}" target="_blank" rel="noopener" class="game-link">Play on Itch.io →</a>
+          </div>
+        </div>`;
+    });
+
+    /* ── FILTER ───────────────────────────────────────────── */
+    document.querySelectorAll('.f-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.f-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        const filter = btn.dataset.filter;
+        document.querySelectorAll('.game-card').forEach(card => {
+          const tags = card.dataset.tags.split(' ');
+          const show = filter === 'all' || tags.includes(filter);
+          card.classList.toggle('hidden', !show);
+        });
+      });
+    });
+
+    /* ── NAV SCROLL ───────────────────────────────────────── */
+    const nav = document.getElementById('nav');
+    window.addEventListener('scroll', () => {
+      nav.classList.toggle('scrolled', window.scrollY > 40);
+    }, { passive: true });
+
+    /* ── MOBILE MENU ──────────────────────────────────────── */
+    const ham = document.getElementById('ham');
+    const navLinks = document.getElementById('navLinks');
+    ham.addEventListener('click', () => {
+      ham.classList.toggle('open');
+      navLinks.classList.toggle('open');
+    });
+    navLinks.querySelectorAll('a').forEach(a => {
+      a.addEventListener('click', () => {
+        ham.classList.remove('open');
+        navLinks.classList.remove('open');
+      });
+    });
+
+    /* ── SCROLL REVEAL ────────────────────────────────────── */
+    const obs = new IntersectionObserver(entries => {
+      entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('in'); obs.unobserve(e.target); } });
+    }, { threshold: 0.12 });
+
+    // Trigger hero reveals immediately
+    document.querySelectorAll('.hero .reveal').forEach(el => {
+      setTimeout(() => el.classList.add('in'), 50 + parseInt(el.style.transitionDelay || 0) * 1000);
+    });
+    // Observe non-hero reveals
+    document.querySelectorAll('.reveal:not(.hero .reveal)').forEach(el => obs.observe(el));
+
+    /* ── FORM ─────────────────────────────────────────────── */
+    const form       = document.getElementById('contactForm');
+    const submitBtn  = document.getElementById('submitBtn');
+    const successMsg = document.getElementById('formSuccess');
+
+    form.addEventListener('submit', async e => {
+      e.preventDefault();
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Sending…';
+
+      try {
+        const res = await fetch(form.action, {
+          method: 'POST',
+          body: new FormData(form),
+          headers: { Accept: 'application/json' },
+        });
+        if (res.ok) {
+          form.reset();
+          successMsg.classList.add('show');
+          submitBtn.style.display = 'none';
+        } else {
+          throw new Error('Submit failed');
+        }
+      } catch {
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Send Message →';
+        alert('Something went wrong — please email me directly.');
+      }
+    });
+
+    /* ── FOOTER YEAR ──────────────────────────────────────── */
+    document.getElementById('year').textContent = new Date().getFullYear();
+  </script>
+</body>
+</html>
