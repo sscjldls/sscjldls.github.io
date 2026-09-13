@@ -207,17 +207,22 @@
       object-fit: cover;
       display: block;
     }
-    /* placeholder state - shown when no img child */
-    .doc-img-wrap:not(:has(img)) {
+    .doc-img-wrap video {
+      width: 100%; height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+    /* placeholder state - shown when no img or video child */
+    .doc-img-wrap:not(:has(img)):not(:has(video)) {
       border: 1.5px dashed var(--border-l);
       border-radius: 7px;
     }
-    .doc-img-wrap:not(:has(img))::before {
+    .doc-img-wrap:not(:has(img)):not(:has(video))::before {
       content: '📷';
       font-size: 1.8rem;
       opacity: .4;
     }
-    .doc-img-wrap:not(:has(img))::after {
+    .doc-img-wrap:not(:has(img)):not(:has(video))::after {
       content: attr(data-slot);
       font-size: .73rem;
       color: var(--dim);
@@ -252,6 +257,10 @@
       width: 100%; height: 100%;
       display: block;
       border: none;
+    }
+    .doc-video-frame video {
+      width: 100%; height: 100%;
+      display: block;
     }
     /* placeholder when no iframe / video_id not set */
     .doc-video-placeholder {
@@ -328,7 +337,7 @@
       <p class="proj-hero-desc">A third-person open-world action game built in Unreal Engine 5, inspired by Ghost of Tsushima / Yōtei. Blueprint-only, studio-pattern systems - designed as both a portfolio piece and a public tutorial series.</p>
       <div class="proj-hero-meta">
         <span class="topbar-badge badge-unreal">Unreal Engine 5.7</span>
-        <span class="topbar-badge badge-wip">In Development</span>
+        <span class="topbar-badge badge-wip">In Progress</span>
       </div>
     </div>
   </div>
@@ -393,9 +402,9 @@
           <div class="doc-status-item"><div class="doc-status-label">Character Movement</div><div class="doc-status-value done">✓ Done</div></div>
           <div class="doc-status-item"><div class="doc-status-label">Health System</div><div class="doc-status-value done">✓ Done</div></div>
           <div class="doc-status-item"><div class="doc-status-label">Interaction System</div><div class="doc-status-value done">✓ Done</div></div>
-          <div class="doc-status-item"><div class="doc-status-label">Quest Director</div><div class="doc-status-value wip">⟳ Active</div></div>
-          <div class="doc-status-item"><div class="doc-status-label">Quest UI</div><div class="doc-status-value wip">⟳ Active</div></div>
-          <div class="doc-status-item"><div class="doc-status-label">Dialogue System</div><div class="doc-status-value wip">⟳ Active</div></div>
+          <div class="doc-status-item"><div class="doc-status-label">Quest Director</div><div class="doc-status-value done">✓ Done</div></div>
+          <div class="doc-status-item"><div class="doc-status-label">Quest UI</div><div class="doc-status-value done">✓ Done</div></div>
+          <div class="doc-status-item"><div class="doc-status-label">Dialogue System</div><div class="doc-status-value done">✓ Done</div></div>
           <div class="doc-status-item"><div class="doc-status-label">Combat</div><div class="doc-status-value todo">- Planned</div></div>
           <div class="doc-status-item"><div class="doc-status-label">Enemy AI</div><div class="doc-status-value todo">- Planned</div></div>
           <div class="doc-status-item"><div class="doc-status-label">Ally Recruitment</div><div class="doc-status-value todo">- Planned</div></div>
@@ -405,7 +414,7 @@
         <div class="doc-video-wrap">
           <div class="doc-video-frame">
             <!-- Paste a YouTube embed once you have a devlog:
-            <iframe src="https://www.youtube.com/embed/YOUR_VIDEO_ID" title="Ghost of Yotei UE5 Devlog" allowfullscreen></iframe>
+            <iframe src="https://www.youtube.com/embed/YOUR_VIDEO_ID" title="GoY UE5 Devlog" allowfullscreen></iframe>
             -->
             <div class="doc-video-placeholder">
               <span class="doc-video-placeholder-icon">▶</span>
@@ -475,13 +484,13 @@
         <div class="doc-img-grid two">
           <figure class="doc-img-slot">
             <div class="doc-img-wrap" data-slot="GameMode setup screenshot">
-              <!-- <img src="../../media/goy/gamemode-setup.png" alt="GameMode class defaults" /> -->
+              <img src="../../media/yotei/gameInstance.png" alt="BP_YoteiGameMode Class Defaults" />
             </div>
             <span class="doc-img-caption">BP_YoteiGameMode - Class Defaults with Pawn and Controller assigned</span>
           </figure>
           <figure class="doc-img-slot">
             <div class="doc-img-wrap" data-slot="Character in viewport screenshot">
-              <!-- <img src="../../media/goy/character-viewport.png" alt="BP_PlayerCharacter in level" /> -->
+              <img src="../../media/yotei/playerCharacter.png" alt="BP_PlayerCharacter in level" />
             </div>
             <span class="doc-img-caption">BP_PlayerCharacter spawned in L_Foundation</span>
           </figure>
@@ -527,8 +536,8 @@
         <!-- Health bar screenshot -->
         <div class="doc-img-grid single">
           <figure class="doc-img-slot">
-            <div class="doc-img-wrap" data-slot="WBP_HealthBar in game screenshot">
-              <!-- <img src="../../media/goy/health-bar.png" alt="Health bar widget in game" /> -->
+            <div class="doc-img-wrap" data-slot="WBP_HealthBar in game">
+              <video src="../../media/yotei/healthSystem.mp4" controls></video>
             </div>
             <span class="doc-img-caption">WBP_HealthBar - progress bar updating in real time via OnDamaged dispatcher</span>
           </figure>
@@ -557,14 +566,14 @@
         <!-- Two screenshots side by side -->
         <div class="doc-img-grid two">
           <figure class="doc-img-slot">
-            <div class="doc-img-wrap" data-slot="Interaction prompt visible screenshot">
-              <!-- <img src="../../media/goy/interaction-prompt.png" alt="Interaction prompt visible" /> -->
+            <div class="doc-img-wrap" data-slot="Interaction prompt video">
+              <video src="../../media/yotei/interaction.mp4" controls></video>
             </div>
             <span class="doc-img-caption">Interaction prompt shown when player enters sphere trace range</span>
           </figure>
           <figure class="doc-img-slot">
             <div class="doc-img-wrap" data-slot="BPI_Interactable Blueprint interface screenshot">
-              <!-- <img src="../../media/goy/bpi-interactable.png" alt="BPI_Interactable interface" /> -->
+              <img src="../../media/yotei/interactInterface.png" alt="BPI_Interactable interface" />
             </div>
             <span class="doc-img-caption">BPI_Interactable - the three interface functions</span>
           </figure>
@@ -578,7 +587,7 @@
         <h1 class="doc-h1">Quest Director</h1>
         <div class="doc-meta">
           <span class="topbar-badge badge-unreal">Unreal Engine 5.7</span>
-          <span class="topbar-badge badge-wip">In Development</span>
+          <span class="topbar-badge badge-done">Done</span>
         </div>
         <p class="doc-p">A weighted, catch-up quest director inspired by Yōtei's dynamic quest surfacing. Underleveled players get Side / Exploration draws; overleveled players get pulled toward Main Quests. The draw logic never hard-returns null - it re-rolls into the next available category.</p>
 
@@ -626,11 +635,7 @@ Output: DrawnQuest (BP_QuestData ref) or None
         <h2 class="doc-h2">System Demo</h2>
         <div class="doc-video-wrap">
           <div class="doc-video-frame">
-            <!-- <iframe src="https://www.youtube.com/embed/YOUR_VIDEO_ID" title="Quest Director demo" allowfullscreen></iframe> -->
-            <div class="doc-video-placeholder">
-              <span class="doc-video-placeholder-icon">▶</span>
-              <span class="doc-video-placeholder-text">Quest Director demo - weighted draw in action</span>
-            </div>
+            <video src="../../media/yotei/questSystem.mp4" controls></video>
           </div>
           <p class="doc-video-caption">Demo: DrawAndUnlockQuest running across different PlayerPowerLevel values - showing category shift</p>
         </div>
@@ -650,7 +655,7 @@ Output: DrawnQuest (BP_QuestData ref) or None
         <h1 class="doc-h1">Quest UI</h1>
         <div class="doc-meta">
           <span class="topbar-badge badge-unreal">Unreal Engine 5.7</span>
-          <span class="topbar-badge badge-wip">In Development</span>
+          <span class="topbar-badge badge-done">Done</span>
         </div>
         <p class="doc-p">The Quest Log lives inside the Pause Menu and uses a three-box layout: questline sections (Box 1), quest entries for the selected section (Box 2), and a detail panel for the selected entry (Box 3).</p>
 
@@ -658,7 +663,7 @@ Output: DrawnQuest (BP_QuestData ref) or None
         <div class="doc-img-grid single">
           <figure class="doc-img-slot">
             <div class="doc-img-wrap" data-slot="Quest Log full screenshot">
-              <!-- <img src="../../media/goy/quest-log.png" alt="Quest Log open in Pause Menu" /> -->
+              <img src="../../media/yotei/questSections.png" alt="Quest Log open in Pause Menu" />
             </div>
             <span class="doc-img-caption">WBP_QuestTab - three-box layout with section, entries, and detail panel</span>
           </figure>
@@ -681,13 +686,13 @@ Output: DrawnQuest (BP_QuestData ref) or None
         <div class="doc-img-grid two">
           <figure class="doc-img-slot">
             <div class="doc-img-wrap" data-slot="Quest entry selected screenshot">
-              <!-- <img src="../../media/goy/quest-entry.png" alt="Quest entry selected" /> -->
+              <img src="../../media/yotei/questEntry.png" alt="Quest entry selected" />
             </div>
             <span class="doc-img-caption">WBP_QuestEntry - selected state with highlight</span>
           </figure>
           <figure class="doc-img-slot">
             <div class="doc-img-wrap" data-slot="Quest detail panel screenshot">
-              <!-- <img src="../../media/goy/quest-detail.png" alt="Quest detail panel" /> -->
+              <img src="../../media/yotei/qeustDetail.png" alt="Quest detail panel" />
             </div>
             <span class="doc-img-caption">WBP_QuestDetail - stage text, description, and track button</span>
           </figure>
@@ -699,7 +704,7 @@ Output: DrawnQuest (BP_QuestData ref) or None
         <h1 class="doc-h1">Dialogue System</h1>
         <div class="doc-meta">
           <span class="topbar-badge badge-unreal">Unreal Engine 5.7</span>
-          <span class="topbar-badge badge-wip">In Development</span>
+          <span class="topbar-badge badge-done">Done</span>
         </div>
         <p class="doc-p">A Yōtei-style auto-advance system. Lines play through on a timer derived from the voice clip duration - no Continue button. The only player input available is hold-to-skip the entire conversation.</p>
 
@@ -709,7 +714,7 @@ Output: DrawnQuest (BP_QuestData ref) or None
         <div class="doc-img-grid single">
           <figure class="doc-img-slot">
             <div class="doc-img-wrap" data-slot="Dialogue box in game screenshot">
-              <!-- <img src="../../media/goy/dialogue-box.png" alt="Dialogue box in game" /> -->
+              <img src="../../media/yotei/dialoguePic.png" alt="Dialogue box in game" />
             </div>
             <span class="doc-img-caption">WBP_DialogueBox - subtitle overlay with auto-advance timer running</span>
           </figure>
@@ -735,11 +740,7 @@ Camera → LookAt(Midpoint)</div>
         <h2 class="doc-h2">System Demo</h2>
         <div class="doc-video-wrap">
           <div class="doc-video-frame">
-            <!-- <iframe src="https://www.youtube.com/embed/YOUR_VIDEO_ID" title="Dialogue system demo" allowfullscreen></iframe> -->
-            <div class="doc-video-placeholder">
-              <span class="doc-video-placeholder-icon">▶</span>
-              <span class="doc-video-placeholder-text">Dialogue system - auto-advance + two-shot camera demo</span>
-            </div>
+            <video src="../../media/yotei/dialogue_n_settler.mp4" controls></video>
           </div>
           <p class="doc-video-caption">Demo: auto-advance dialogue running with two mannequins and the two-shot BP_DialogueCamera</p>
         </div>
@@ -752,7 +753,7 @@ Camera → LookAt(Midpoint)</div>
         <h1 class="doc-h1">All Widgets</h1>
         <div class="doc-meta">
           <span class="topbar-badge badge-unreal">Unreal Engine 5.7</span>
-          <span class="topbar-badge badge-wip">In Development</span>
+          <span class="topbar-badge badge-done">Done</span>
         </div>
         <p class="doc-p">Every widget is UMG-based, event-driven, and never polls in Tick. All state binds in Event Construct via Event Dispatchers.</p>
 
@@ -760,12 +761,12 @@ Camera → LookAt(Midpoint)</div>
           <tr><th>Widget</th><th>Role</th><th>Binds To</th><th>Status</th></tr>
           <tr><td><span class="doc-inline">WBP_HealthBar</span></td><td>Screen-space progress bar</td><td>OnDamaged, OnHealed, OnDeath</td><td class="done">✓</td></tr>
           <tr><td><span class="doc-inline">WBP_InteractionPrompt</span></td><td>Icon + text near crosshair</td><td>ShowPrompt / HidePrompt</td><td class="done">✓</td></tr>
-          <tr><td><span class="doc-inline">WBP_DialogueBox</span></td><td>Subtitle panel</td><td>OnLineChanged dispatcher</td><td class="wip">⟳</td></tr>
-          <tr><td><span class="doc-inline">WBP_PauseMenu</span></td><td>Tab-based pause overlay</td><td>IA_ToggleMenu via BP_PlayerController</td><td class="wip">⟳</td></tr>
-          <tr><td><span class="doc-inline">WBP_QuestTab</span></td><td>Quest Log inside Pause Menu</td><td>OnQuestUnlocked, OnQuestCompleted</td><td class="wip">⟳</td></tr>
-          <tr><td><span class="doc-inline">WBP_QuestSection</span></td><td>One questline group</td><td>Parent WBP_QuestTab</td><td class="wip">⟳</td></tr>
-          <tr><td><span class="doc-inline">WBP_QuestEntry</span></td><td>Single quest row</td><td>Parent WBP_QuestSection</td><td class="wip">⟳</td></tr>
-          <tr><td><span class="doc-inline">WBP_QuestDetail</span></td><td>Right-panel detail view</td><td>OnEntryClicked → SetQuestDetail</td><td class="wip">⟳</td></tr>
+          <tr><td><span class="doc-inline">WBP_DialogueBox</span></td><td>Subtitle panel</td><td>OnLineChanged dispatcher</td><td class="done">✓</td></tr>
+          <tr><td><span class="doc-inline">WBP_PauseMenu</span></td><td>Tab-based pause overlay</td><td>IA_ToggleMenu via BP_PlayerController</td><td class="done">✓</td></tr>
+          <tr><td><span class="doc-inline">WBP_QuestTab</span></td><td>Quest Log inside Pause Menu</td><td>OnQuestUnlocked, OnQuestCompleted</td><td class="done">✓</td></tr>
+          <tr><td><span class="doc-inline">WBP_QuestSection</span></td><td>One questline group</td><td>Parent WBP_QuestTab</td><td class="done">✓</td></tr>
+          <tr><td><span class="doc-inline">WBP_QuestEntry</span></td><td>Single quest row</td><td>Parent WBP_QuestSection</td><td class="done">✓</td></tr>
+          <tr><td><span class="doc-inline">WBP_QuestDetail</span></td><td>Right-panel detail view</td><td>OnEntryClicked → SetQuestDetail</td><td class="done">✓</td></tr>
         </table>
 
         <h2 class="doc-h2">Tab Key Fix - BP_PlayerController</h2>
