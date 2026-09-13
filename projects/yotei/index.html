@@ -1,0 +1,882 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Ghost of Yotei (UE5) - OUGADEV Docs</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700;800&family=Outfit:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg:        #07071A;
+      --deep:      #0C0C22;
+      --surface:   #12122C;
+      --surface-h: #18183A;
+      --border:    #1C1C3D;
+      --border-l:  #272752;
+      --violet:    #7B5CF0;
+      --violet-l:  #9D7FF5;
+      --vglow:     rgba(123,92,240,.13);
+      --vglow-s:   rgba(123,92,240,.26);
+      --coral:     #FF4F6D;
+      --cglow:     rgba(255,79,109,.13);
+      --gold:      #F5C542;
+      --teal:      #1EC8A3;
+      --text:      #EAEAFF;
+      --muted:     #6B6B9B;
+      --dim:       #37375A;
+      --fd: 'Space Grotesk', sans-serif;
+      --fb: 'Outfit', sans-serif;
+      --fm: 'JetBrains Mono', monospace;
+      --ease: cubic-bezier(.4,0,.2,1);
+      --r: 10px;
+      --sidebar: 256px;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body { background: var(--bg); color: var(--text); font-family: var(--fb); font-size: 15px; line-height: 1.65; overflow-x: hidden; }
+    h1,h2,h3,h4 { font-family: var(--fd); line-height: 1.15; }
+    a { color: inherit; text-decoration: none; }
+    img { display: block; max-width: 100%; }
+    button { cursor: pointer; font-family: var(--fb); border: none; background: none; }
+    ::-webkit-scrollbar { width: 4px; }
+    ::-webkit-scrollbar-track { background: var(--bg); }
+    ::-webkit-scrollbar-thumb { background: var(--border-l); border-radius: 3px; }
+    ::-webkit-scrollbar-thumb:hover { background: var(--violet); }
+    ::selection { background: var(--vglow-s); color: var(--text); }
+
+    /* ─── TOP BAR ─────────────────────────────────────────── */
+    .topbar {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 200;
+      height: 52px;
+      background: rgba(7,7,26,.95);
+      backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 24px;
+    }
+    .topbar-left { display: flex; align-items: center; gap: 6px; font-size: .83rem; color: var(--dim); }
+    .topbar-crumb { color: var(--dim); transition: color .2s; }
+    .topbar-crumb:hover { color: var(--muted); }
+    .topbar-crumb.active { color: var(--text); font-weight: 500; }
+    .topbar-sep { opacity: .4; }
+    .topbar-right { display: flex; align-items: center; gap: 14px; }
+    .topbar-badge { font-size: .68rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; padding: 3px 10px; border-radius: 4px; }
+    .badge-unreal { color: var(--teal); background: rgba(30,200,163,.1); border: 1px solid rgba(30,200,163,.25); }
+    .badge-wip    { color: var(--gold); background: rgba(245,197,66,.1); border: 1px solid rgba(245,197,66,.25); }
+    .badge-done   { color: var(--teal); background: rgba(30,200,163,.1); border: 1px solid rgba(30,200,163,.25); }
+    .topbar-back {
+      display: inline-flex; align-items: center; gap: 6px;
+      font-size: .8rem; font-weight: 600; color: var(--muted);
+      padding: 6px 14px; border-radius: 6px;
+      border: 1px solid var(--border); transition: all .22s var(--ease);
+    }
+    .topbar-back:hover { border-color: var(--violet); color: var(--violet); }
+    .ham-docs { display: none; flex-direction: column; gap: 4px; padding: 4px; color: var(--muted); }
+    .ham-docs span { display: block; width: 18px; height: 1.5px; background: currentColor; border-radius: 2px; transition: all .28s var(--ease); }
+    .ham-docs.open span:nth-child(1) { transform: translateY(5.5px) rotate(45deg); }
+    .ham-docs.open span:nth-child(2) { opacity: 0; }
+    .ham-docs.open span:nth-child(3) { transform: translateY(-5.5px) rotate(-45deg); }
+
+    /* ─── PROJECT HERO ────────────────────────────────────── */
+    .proj-hero {
+      margin-top: 52px;
+      padding: 56px 40px 40px;
+      background: var(--deep);
+      border-bottom: 1px solid var(--border);
+      position: relative; overflow: hidden;
+    }
+    .proj-hero-aura {
+      position: absolute; inset: 0; pointer-events: none;
+      background:
+        radial-gradient(ellipse 60% 100% at 10% 50%, rgba(123,92,240,.07) 0%, transparent 60%),
+        radial-gradient(ellipse 40% 100% at 90% 50%, rgba(30,200,163,.05) 0%, transparent 60%);
+    }
+    .proj-hero-inner { max-width: 900px; position: relative; }
+    .proj-hero-eye { font-size: .7rem; font-weight: 700; letter-spacing: .18em; text-transform: uppercase; color: var(--violet); margin-bottom: 10px; }
+    .proj-hero-title { font-family: var(--fd); font-size: clamp(1.8rem,4vw,2.8rem); font-weight: 800; letter-spacing: -.04em; color: var(--text); margin-bottom: 10px; }
+    .proj-hero-desc { color: var(--muted); font-size: .97rem; max-width: 580px; line-height: 1.8; margin-bottom: 18px; }
+    .proj-hero-meta { display: flex; gap: 8px; flex-wrap: wrap; }
+
+    /* ─── LAYOUT ──────────────────────────────────────────── */
+    .wiki-layout {
+      display: grid;
+      grid-template-columns: var(--sidebar) 1fr;
+      min-height: calc(100vh - 52px);
+    }
+
+    /* ─── SIDEBAR ─────────────────────────────────────────── */
+    .wiki-sidebar {
+      border-right: 1px solid var(--border);
+      background: var(--deep);
+      position: sticky;
+      top: 52px;
+      height: calc(100vh - 52px);
+      overflow-y: auto;
+      overflow-x: hidden;
+      padding: 18px 0 40px;
+    }
+    .wiki-sidebar::-webkit-scrollbar { width: 3px; }
+
+    .sidebar-section-label {
+      font-size: .65rem; font-weight: 700; letter-spacing: .16em;
+      text-transform: uppercase; color: var(--dim);
+      padding: 14px 18px 6px;
+    }
+    .sidebar-link {
+      display: flex; align-items: center; gap: 10px;
+      width: 100%; text-align: left;
+      padding: 8px 18px;
+      font-size: .84rem; color: var(--muted);
+      transition: color .18s, background .18s;
+      border-left: 2px solid transparent;
+    }
+    .sidebar-link:hover { color: var(--text); background: rgba(123,92,240,.05); }
+    .sidebar-link.active {
+      color: var(--violet);
+      background: var(--vglow);
+      border-left-color: var(--violet);
+    }
+    .sidebar-link-icon { font-size: .9rem; flex-shrink: 0; width: 18px; text-align: center; }
+    .sidebar-divider { height: 1px; background: var(--border); margin: 10px 18px; }
+
+    /* ─── CONTENT ─────────────────────────────────────────── */
+    .wiki-content { padding: 44px 56px 100px; max-width: 860px; }
+
+    .doc-page { display: none; }
+    .doc-page.active { display: block; }
+
+    /* typography */
+    .doc-h1 { font-family: var(--fd); font-size: 1.9rem; font-weight: 800; letter-spacing: -.04em; color: var(--text); margin-bottom: 8px; }
+    .doc-meta { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 28px; padding-bottom: 22px; border-bottom: 1px solid var(--border); }
+    .doc-h2 { font-family: var(--fd); font-size: 1.2rem; font-weight: 700; letter-spacing: -.025em; color: var(--text); margin: 38px 0 12px; padding-bottom: 8px; border-bottom: 1px solid var(--border); }
+    .doc-h3 { font-family: var(--fd); font-size: .97rem; font-weight: 700; color: var(--violet-l); margin: 20px 0 8px; }
+    .doc-p { color: var(--muted); font-size: .93rem; line-height: 1.85; margin-bottom: 14px; max-width: 660px; }
+    .doc-code { font-family: var(--fm); font-size: .78rem; background: var(--deep); border: 1px solid var(--border); border-radius: 7px; padding: 14px 18px; color: #C8C0FF; overflow-x: auto; margin: 10px 0 18px; white-space: pre; line-height: 1.7; }
+    .doc-inline { font-family: var(--fm); font-size: .8em; background: var(--deep); border: 1px solid var(--border); padding: 1px 6px; border-radius: 4px; color: #C8C0FF; }
+    .doc-ul { list-style: none; margin: 10px 0 18px; display: flex; flex-direction: column; gap: 7px; }
+    .doc-ul li { display: flex; align-items: flex-start; gap: 10px; font-size: .91rem; color: var(--muted); line-height: 1.65; }
+    .doc-ul li::before { content: '—'; color: var(--violet); flex-shrink: 0; }
+    .doc-callout { background: var(--vglow); border: 1px solid rgba(123,92,240,.28); border-left: 3px solid var(--violet); border-radius: 6px; padding: 13px 17px; margin: 14px 0 20px; font-size: .89rem; color: var(--muted); line-height: 1.75; max-width: 660px; }
+    .doc-callout strong { color: var(--text); }
+    .doc-callout.warn { background: rgba(245,197,66,.07); border-color: rgba(245,197,66,.3); border-left-color: var(--gold); }
+    .doc-callout.warn strong { color: var(--gold); }
+    .doc-table { width: 100%; border-collapse: collapse; margin: 12px 0 22px; font-size: .86rem; }
+    .doc-table th { text-align: left; padding: 8px 13px; background: var(--surface); border: 1px solid var(--border); color: var(--muted); font-weight: 600; font-size: .75rem; letter-spacing: .04em; }
+    .doc-table td { padding: 8px 13px; border: 1px solid var(--border); color: var(--muted); vertical-align: top; line-height: 1.55; }
+    .doc-table tr:hover td { background: var(--surface); }
+
+    /* status grid */
+    .doc-status-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 10px; margin: 14px 0 24px; }
+    .doc-status-item { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 12px 14px; }
+    .doc-status-label { font-size: .73rem; color: var(--dim); font-weight: 500; margin-bottom: 4px; }
+    .doc-status-value { font-family: var(--fd); font-size: .9rem; font-weight: 700; color: var(--text); }
+    .done { color: var(--teal) !important; }
+    .wip  { color: var(--gold) !important; }
+    .todo { color: var(--dim) !important; }
+
+    /* ─── MEDIA: IMAGES ───────────────────────────────────── */
+    .doc-img-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: 14px;
+      margin: 16px 0 26px;
+    }
+    .doc-img-grid.single { grid-template-columns: 1fr; max-width: 660px; }
+    .doc-img-grid.two    { grid-template-columns: 1fr 1fr; }
+
+    .doc-img-slot {
+      border-radius: 8px;
+      overflow: hidden;
+      border: 1px solid var(--border);
+      background: var(--surface);
+    }
+    .doc-img-wrap {
+      width: 100%;
+      aspect-ratio: 16/9;
+      background: var(--deep);
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      gap: 8px;
+      position: relative; overflow: hidden;
+    }
+    .doc-img-wrap img {
+      width: 100%; height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+    /* placeholder state - shown when no img child */
+    .doc-img-wrap:not(:has(img)) {
+      border: 1.5px dashed var(--border-l);
+      border-radius: 7px;
+    }
+    .doc-img-wrap:not(:has(img))::before {
+      content: '📷';
+      font-size: 1.8rem;
+      opacity: .4;
+    }
+    .doc-img-wrap:not(:has(img))::after {
+      content: attr(data-slot);
+      font-size: .73rem;
+      color: var(--dim);
+      letter-spacing: .04em;
+      text-align: center;
+      padding: 0 16px;
+    }
+    .doc-img-caption {
+      display: block;
+      font-size: .75rem;
+      color: var(--dim);
+      padding: 8px 12px;
+      line-height: 1.5;
+      border-top: 1px solid var(--border);
+    }
+
+    /* ─── MEDIA: VIDEO ────────────────────────────────────── */
+    .doc-video-wrap {
+      margin: 16px 0 26px;
+      max-width: 660px;
+    }
+    .doc-video-frame {
+      width: 100%;
+      aspect-ratio: 16/9;
+      border-radius: 8px;
+      overflow: hidden;
+      border: 1px solid var(--border);
+      background: var(--deep);
+      position: relative;
+    }
+    .doc-video-frame iframe {
+      width: 100%; height: 100%;
+      display: block;
+      border: none;
+    }
+    /* placeholder when no iframe / video_id not set */
+    .doc-video-placeholder {
+      width: 100%; height: 100%;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      gap: 10px;
+      border: 1.5px dashed var(--border-l);
+      border-radius: 8px;
+    }
+    .doc-video-placeholder-icon { font-size: 2rem; opacity: .35; }
+    .doc-video-placeholder-text { font-size: .75rem; color: var(--dim); letter-spacing: .04em; }
+    .doc-video-caption { font-size: .75rem; color: var(--dim); margin-top: 8px; line-height: 1.5; }
+
+    /* ─── FOOTER ──────────────────────────────────────────── */
+    .wiki-footer {
+      background: var(--deep);
+      border-top: 1px solid var(--border);
+      padding: 28px 40px;
+      display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 14px;
+    }
+    .wiki-footer-logo { font-family: var(--fd); font-weight: 800; font-size: 1rem; letter-spacing: -.025em; color: var(--dim); }
+    .wiki-footer-logo span { color: var(--violet); }
+    .wiki-footer-copy { font-size: .75rem; color: var(--dim); }
+
+    /* ─── MOBILE ──────────────────────────────────────────── */
+    @media (max-width: 800px) {
+      .topbar { padding: 0 16px; }
+      .topbar-badges { display: none; }
+      .ham-docs { display: flex; }
+      .proj-hero { padding: 44px 20px 30px; }
+      .wiki-layout { grid-template-columns: 1fr; }
+      .wiki-sidebar {
+        position: fixed; top: 52px; left: 0; bottom: 0;
+        width: var(--sidebar); z-index: 100;
+        transform: translateX(-100%);
+        transition: transform .3s var(--ease);
+        border-right: 1px solid var(--border-l);
+        box-shadow: 6px 0 30px rgba(0,0,0,.4);
+      }
+      .wiki-sidebar.open { transform: translateX(0); }
+      .wiki-content { padding: 30px 20px 80px; }
+      .doc-img-grid.two { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- TOP BAR -->
+  <header class="topbar">
+    <div class="topbar-left">
+      <a href="../../index.html" class="topbar-crumb">OUGADEV</a>
+      <span class="topbar-sep">/</span>
+      <a href="../index.html" class="topbar-crumb">Projects</a>
+      <span class="topbar-sep">/</span>
+      <span class="topbar-crumb active">Ghost of Yotei</span>
+    </div>
+    <div class="topbar-right">
+      <span class="topbar-badge badge-unreal topbar-badges">Unreal Engine 5.7</span>
+      <span class="topbar-badge badge-wip topbar-badges">In Dev</span>
+      <a href="../../index.html" class="topbar-back">← Back to Portfolio</a>
+      <button class="ham-docs" id="hamDocs" aria-label="Toggle sidebar">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </header>
+
+  <!-- PROJECT HERO -->
+  <div class="proj-hero">
+    <div class="proj-hero-aura"></div>
+    <div class="proj-hero-inner">
+      <p class="proj-hero-eye">Project Documentation</p>
+      <h1 class="proj-hero-title">Ghost of Yōtei (UE5)</h1>
+      <p class="proj-hero-desc">A third-person open-world action game built in Unreal Engine 5, inspired by Ghost of Tsushima / Yōtei. Blueprint-only, studio-pattern systems - designed as both a portfolio piece and a public tutorial series.</p>
+      <div class="proj-hero-meta">
+        <span class="topbar-badge badge-unreal">Unreal Engine 5.7</span>
+        <span class="topbar-badge badge-wip">In Development</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- WIKI LAYOUT -->
+  <div class="wiki-layout">
+
+    <!-- SIDEBAR -->
+    <nav class="wiki-sidebar" id="wikiSidebar">
+      <div class="sidebar-section-label">Getting Started</div>
+      <button class="sidebar-link" data-page="overview"><span class="sidebar-link-icon">🗺</span>Overview</button>
+      <button class="sidebar-link" data-page="tech-stack"><span class="sidebar-link-icon">⚙️</span>Tech Stack</button>
+
+      <div class="sidebar-divider"></div>
+      <div class="sidebar-section-label">Core Systems</div>
+      <button class="sidebar-link" data-page="foundation"><span class="sidebar-link-icon">🧱</span>Foundation</button>
+      <button class="sidebar-link" data-page="health"><span class="sidebar-link-icon">❤️</span>Health System</button>
+      <button class="sidebar-link" data-page="interaction"><span class="sidebar-link-icon">🤝</span>Interaction System</button>
+
+      <div class="sidebar-divider"></div>
+      <div class="sidebar-section-label">Game Systems</div>
+      <button class="sidebar-link" data-page="quest-director"><span class="sidebar-link-icon">📜</span>Quest Director</button>
+      <button class="sidebar-link" data-page="quest-ui"><span class="sidebar-link-icon">📋</span>Quest UI</button>
+      <button class="sidebar-link" data-page="dialogue"><span class="sidebar-link-icon">💬</span>Dialogue System</button>
+
+      <div class="sidebar-divider"></div>
+      <div class="sidebar-section-label">UI & Polish</div>
+      <button class="sidebar-link" data-page="widgets"><span class="sidebar-link-icon">🖥</span>All Widgets</button>
+
+      <div class="sidebar-divider"></div>
+      <div class="sidebar-section-label">Planning</div>
+      <button class="sidebar-link" data-page="roadmap"><span class="sidebar-link-icon">🧭</span>Roadmap</button>
+    </nav>
+
+    <!-- CONTENT -->
+    <main class="wiki-content" id="wikiContent">
+
+      <!-- ══ OVERVIEW ══ -->
+      <article class="doc-page" id="page-overview">
+        <h1 class="doc-h1">Overview</h1>
+        <div class="doc-meta">
+          <span class="topbar-badge badge-unreal">Unreal Engine 5.7</span>
+          <span class="topbar-badge badge-wip">In Development</span>
+        </div>
+
+        <p class="doc-p">A third-person open-world action game in UE5, inspired by Ghost of Tsushima / Ghost of Yōtei. All systems are Blueprint-only to keep the accompanying tutorial series accessible, while still following real production patterns used in shipped titles.</p>
+
+        <!-- PROJECT SCREENSHOT -->
+        <div class="doc-img-grid single">
+          <figure class="doc-img-slot">
+            <div class="doc-img-wrap" data-slot="Project overview screenshot">
+              <!-- Drop your screenshot here:
+              <img src="../../media/goy/overview.png" alt="Ghost of Yotei overview" />
+              -->
+            </div>
+            <span class="doc-img-caption">Project overview - replace with a screenshot of the current in-editor state</span>
+          </figure>
+        </div>
+
+        <h2 class="doc-h2">System Status</h2>
+        <div class="doc-status-grid">
+          <div class="doc-status-item"><div class="doc-status-label">Character Movement</div><div class="doc-status-value done">✓ Done</div></div>
+          <div class="doc-status-item"><div class="doc-status-label">Health System</div><div class="doc-status-value done">✓ Done</div></div>
+          <div class="doc-status-item"><div class="doc-status-label">Interaction System</div><div class="doc-status-value done">✓ Done</div></div>
+          <div class="doc-status-item"><div class="doc-status-label">Quest Director</div><div class="doc-status-value wip">⟳ Active</div></div>
+          <div class="doc-status-item"><div class="doc-status-label">Quest UI</div><div class="doc-status-value wip">⟳ Active</div></div>
+          <div class="doc-status-item"><div class="doc-status-label">Dialogue System</div><div class="doc-status-value wip">⟳ Active</div></div>
+          <div class="doc-status-item"><div class="doc-status-label">Combat</div><div class="doc-status-value todo">- Planned</div></div>
+          <div class="doc-status-item"><div class="doc-status-label">Enemy AI</div><div class="doc-status-value todo">- Planned</div></div>
+          <div class="doc-status-item"><div class="doc-status-label">Ally Recruitment</div><div class="doc-status-value todo">- Planned</div></div>
+        </div>
+
+        <h2 class="doc-h2">Devlog Video</h2>
+        <div class="doc-video-wrap">
+          <div class="doc-video-frame">
+            <!-- Paste a YouTube embed once you have a devlog:
+            <iframe src="https://www.youtube.com/embed/YOUR_VIDEO_ID" title="Ghost of Yotei UE5 Devlog" allowfullscreen></iframe>
+            -->
+            <div class="doc-video-placeholder">
+              <span class="doc-video-placeholder-icon">▶</span>
+              <span class="doc-video-placeholder-text">Devlog video - paste your YouTube embed ID here</span>
+            </div>
+          </div>
+          <p class="doc-video-caption">Project devlog - overall progress, architecture decisions, and lessons learned</p>
+        </div>
+
+        <h2 class="doc-h2">Folder Structure</h2>
+        <div class="doc-code">Content/
+├── _Core/
+│   ├── GameMode/       BP_YoteiGameMode, BP_PlayerController
+│   ├── Player/         BP_PlayerCharacter
+│   └── GameInstance/   BP_YoteiGameInstance
+├── Systems/
+│   ├── Health/         BP_HealthComponent
+│   ├── Interaction/    BPI_Interactable, BP_InteractionComponent
+│   ├── Quest/          BP_QuestManager (subsystem), DT_Quests
+│   ├── Dialogue/       BP_DialogueManager, DT_Dialogue
+│   └── UI/             WBP_HealthBar, WBP_InteractionPrompt,
+│                       WBP_PauseMenu, WBP_QuestTab
+└── Content/
+    ├── Maps/           L_Foundation
+    └── Test/           BP_TestInteractable, BP_TestNPC</div>
+      </article>
+
+      <!-- ══ TECH STACK ══ -->
+      <article class="doc-page" id="page-tech-stack">
+        <h1 class="doc-h1">Tech Stack</h1>
+        <div class="doc-meta">
+          <span class="topbar-badge badge-unreal">Unreal Engine 5.7</span>
+        </div>
+        <table class="doc-table">
+          <tr><th>Layer</th><th>Tool</th><th>Notes</th></tr>
+          <tr><td>Engine</td><td>Unreal Engine 5.7</td><td>Blank template, no Starter Content</td></tr>
+          <tr><td>Scripting</td><td>Blueprints</td><td>100% BP - no C++</td></tr>
+          <tr><td>Input</td><td>Enhanced Input</td><td>IMC_Default + individual IA_ assets</td></tr>
+          <tr><td>Data</td><td>Data Tables + JSON import</td><td>One file for all quests, one for dialogue rows</td></tr>
+          <tr><td>Persistence</td><td>Game Instance Subsystem</td><td>BP_YoteiGameInstance owns all runtime state</td></tr>
+          <tr><td>Events</td><td>Event Dispatchers</td><td>No polling - everything publish / subscribe</td></tr>
+          <tr><td>Camera</td><td>CineCameraActor subclass</td><td>BP_DialogueCamera - repositioned per conversation</td></tr>
+          <tr><td>UI</td><td>UMG Widgets</td><td>Bound to dispatchers in Event Construct, never Tick</td></tr>
+        </table>
+
+        <h2 class="doc-h2">Architectural Principles</h2>
+        <ul class="doc-ul">
+          <li><strong style="color:var(--text)">No polling.</strong> Every widget and system subscribes to an Event Dispatcher and only updates when something actually changes. Nothing reads state in Tick.</li>
+          <li><strong style="color:var(--text)">One source of truth.</strong> BP_YoteiGameInstance is the only place runtime state (active quests, completed quests, tracked quest) ever lives. Nothing caches a copy.</li>
+          <li><strong style="color:var(--text)">Data in tables, not assets.</strong> All quest and dialogue content lives in JSON-imported Data Tables. Adding a quest is adding a row - not creating a new Blueprint asset.</li>
+          <li><strong style="color:var(--text)">Additive, not ripping.</strong> Every system is designed so v2 features are additive - new nodes, new fields, new functions - nothing rewires what already works.</li>
+        </ul>
+      </article>
+
+      <!-- ══ FOUNDATION ══ -->
+      <article class="doc-page" id="page-foundation">
+        <h1 class="doc-h1">Foundation</h1>
+        <div class="doc-meta">
+          <span class="topbar-badge badge-unreal">Unreal Engine 5.7</span>
+          <span class="topbar-badge badge-done">Done</span>
+        </div>
+        <p class="doc-p">The bootstrapping layer every other system depends on. UE5 requires an explicit chain that Unity handles implicitly - this is the piece with no Unity equivalent.</p>
+
+        <div class="doc-callout"><strong>Bootstrap chain:</strong> BP_YoteiGameMode → sets Default Pawn Class = BP_PlayerCharacter and Player Controller Class = BP_PlayerController. Assigned in Level World Settings. Without this, nothing spawns and no input binds.</div>
+
+        <!-- Screenshots -->
+        <div class="doc-img-grid two">
+          <figure class="doc-img-slot">
+            <div class="doc-img-wrap" data-slot="GameMode setup screenshot">
+              <!-- <img src="../../media/goy/gamemode-setup.png" alt="GameMode class defaults" /> -->
+            </div>
+            <span class="doc-img-caption">BP_YoteiGameMode - Class Defaults with Pawn and Controller assigned</span>
+          </figure>
+          <figure class="doc-img-slot">
+            <div class="doc-img-wrap" data-slot="Character in viewport screenshot">
+              <!-- <img src="../../media/goy/character-viewport.png" alt="BP_PlayerCharacter in level" /> -->
+            </div>
+            <span class="doc-img-caption">BP_PlayerCharacter spawned in L_Foundation</span>
+          </figure>
+        </div>
+
+        <h2 class="doc-h2">Enhanced Input Setup</h2>
+        <p class="doc-p">All input goes through Enhanced Input. Legacy <span class="doc-inline">Input.GetAxis</span> is not available in UE5.7.</p>
+        <table class="doc-table">
+          <tr><th>Asset</th><th>Type</th><th>Action</th></tr>
+          <tr><td><span class="doc-inline">IMC_Default</span></td><td>Input Mapping Context</td><td>Container - added in BP_PlayerCharacter BeginPlay</td></tr>
+          <tr><td><span class="doc-inline">IA_Move</span></td><td>Input Action (Vector2D)</td><td>WASD movement</td></tr>
+          <tr><td><span class="doc-inline">IA_Look</span></td><td>Input Action (Vector2D)</td><td>Mouse / stick camera</td></tr>
+          <tr><td><span class="doc-inline">IA_Jump</span></td><td>Input Action (Bool)</td><td>Spacebar</td></tr>
+          <tr><td><span class="doc-inline">IA_Interact</span></td><td>Input Action (Bool)</td><td>E key - triggers InteractionComponent</td></tr>
+          <tr><td><span class="doc-inline">IA_ToggleMenu</span></td><td>Input Action (Bool)</td><td>Tab - wired in BP_PlayerController (not Character)</td></tr>
+        </table>
+      </article>
+
+      <!-- ══ HEALTH ══ -->
+      <article class="doc-page" id="page-health">
+        <h1 class="doc-h1">Health System</h1>
+        <div class="doc-meta">
+          <span class="topbar-badge badge-unreal">Unreal Engine 5.7</span>
+          <span class="topbar-badge badge-done">Done</span>
+        </div>
+        <p class="doc-p"><span class="doc-inline">BP_HealthComponent</span> is an Actor Component attached to BP_PlayerCharacter. It owns all health state and broadcasts changes via Event Dispatchers - nothing polls it.</p>
+
+        <h2 class="doc-h2">Variables</h2>
+        <table class="doc-table">
+          <tr><th>Variable</th><th>Type</th><th>Default</th></tr>
+          <tr><td><span class="doc-inline">MaxHealth</span></td><td>Integer</td><td>100</td></tr>
+          <tr><td><span class="doc-inline">CurrentHealth</span></td><td>Integer</td><td>= MaxHealth</td></tr>
+          <tr><td><span class="doc-inline">bIsDead</span></td><td>Bool</td><td>false</td></tr>
+        </table>
+
+        <h2 class="doc-h2">Event Dispatchers</h2>
+        <ul class="doc-ul">
+          <li><span class="doc-inline">OnDamaged(Amount: Int, CurrentHealth: Int)</span> - fires on every TakeDamage call that lands</li>
+          <li><span class="doc-inline">OnHealed(Amount: Int, CurrentHealth: Int)</span> - fires on every Heal call</li>
+          <li><span class="doc-inline">OnDeath</span> - fires once when CurrentHealth reaches 0; bIsDead guard blocks all subsequent calls</li>
+        </ul>
+
+        <!-- Health bar screenshot -->
+        <div class="doc-img-grid single">
+          <figure class="doc-img-slot">
+            <div class="doc-img-wrap" data-slot="WBP_HealthBar in game screenshot">
+              <!-- <img src="../../media/goy/health-bar.png" alt="Health bar widget in game" /> -->
+            </div>
+            <span class="doc-img-caption">WBP_HealthBar - progress bar updating in real time via OnDamaged dispatcher</span>
+          </figure>
+        </div>
+
+        <div class="doc-callout"><strong>Why dispatchers, not direct calls:</strong> WBP_HealthBar and the debug print logger both subscribe to OnDamaged independently. Neither knows the other exists - and neither knows about BP_HealthComponent's internals. Adding a third listener (damage popups, screen effects) costs zero changes to the component itself.</div>
+      </article>
+
+      <!-- ══ INTERACTION ══ -->
+      <article class="doc-page" id="page-interaction">
+        <h1 class="doc-h1">Interaction System</h1>
+        <div class="doc-meta">
+          <span class="topbar-badge badge-unreal">Unreal Engine 5.7</span>
+          <span class="topbar-badge badge-done">Done</span>
+        </div>
+        <p class="doc-p">A four-piece system mirroring Unity's IInteractable pattern. The component sphere-traces each tick, finds the closest interactable, and drives the prompt widget - all without the interactable knowing who's looking at it.</p>
+
+        <table class="doc-table">
+          <tr><th>Blueprint</th><th>Role</th></tr>
+          <tr><td><span class="doc-inline">BPI_Interactable</span></td><td>Interface - Interact, GetPromptText, GetPromptIcon. Any actor implementing this is automatically discovered.</td></tr>
+          <tr><td><span class="doc-inline">WBP_InteractionPrompt</span></td><td>Icon + text overlay. ShowPrompt / HidePrompt are the only public functions - no state knowledge.</td></tr>
+          <tr><td><span class="doc-inline">BP_InteractionComponent</span></td><td>Actor Component on the player. Sphere trace each tick, tracks closest interactable, calls ShowPrompt / HidePrompt on the widget.</td></tr>
+          <tr><td><span class="doc-inline">BP_TestInteractable</span></td><td>Placeholder actor implementing BPI_Interactable for end-to-end testing.</td></tr>
+        </table>
+
+        <!-- Two screenshots side by side -->
+        <div class="doc-img-grid two">
+          <figure class="doc-img-slot">
+            <div class="doc-img-wrap" data-slot="Interaction prompt visible screenshot">
+              <!-- <img src="../../media/goy/interaction-prompt.png" alt="Interaction prompt visible" /> -->
+            </div>
+            <span class="doc-img-caption">Interaction prompt shown when player enters sphere trace range</span>
+          </figure>
+          <figure class="doc-img-slot">
+            <div class="doc-img-wrap" data-slot="BPI_Interactable Blueprint interface screenshot">
+              <!-- <img src="../../media/goy/bpi-interactable.png" alt="BPI_Interactable interface" /> -->
+            </div>
+            <span class="doc-img-caption">BPI_Interactable - the three interface functions</span>
+          </figure>
+        </div>
+
+        <div class="doc-callout warn"><strong>Typing rule:</strong> casting down to a specific type always needs an explicit Cast node, even when you know the object implements the interface. Blueprint can't guarantee type at compile time - this explains every type-mismatch fix in this system.</div>
+      </article>
+
+      <!-- ══ QUEST DIRECTOR ══ -->
+      <article class="doc-page" id="page-quest-director">
+        <h1 class="doc-h1">Quest Director</h1>
+        <div class="doc-meta">
+          <span class="topbar-badge badge-unreal">Unreal Engine 5.7</span>
+          <span class="topbar-badge badge-wip">In Development</span>
+        </div>
+        <p class="doc-p">A weighted, catch-up quest director inspired by Yōtei's dynamic quest surfacing. Underleveled players get Side / Exploration draws; overleveled players get pulled toward Main Quests. The draw logic never hard-returns null - it re-rolls into the next available category.</p>
+
+        <h2 class="doc-h2">Data Structure - S_QuestData</h2>
+        <table class="doc-table">
+          <tr><th>Field</th><th>Type</th><th>Purpose</th></tr>
+          <tr><td>Title</td><td>Text</td><td>Display name in Quest Log</td></tr>
+          <tr><td>Description</td><td>Text</td><td>Journal entry text</td></tr>
+          <tr><td>Category</td><td>E_QuestCategory</td><td>Main / Side / Exploration / Bounty - drives weighted draw</td></tr>
+          <tr><td>Region</td><td>E_Region</td><td>Which region the quest belongs to</td></tr>
+          <tr><td>QuestLine</td><td>Name</td><td>Groups quests under a named arc in the log</td></tr>
+          <tr><td>Prerequisites</td><td>Array&lt;Name&gt;</td><td>Row names that must be completed first</td></tr>
+          <tr><td>NextQuest</td><td>Name</td><td>Auto-unlocks this row on completion (chain quests)</td></tr>
+        </table>
+
+        <h2 class="doc-h2">DrawAndUnlockQuest - Weighted Algorithm</h2>
+        <div class="doc-code">Input: CurrentRegion (E_Region)
+Output: DrawnQuest (BP_QuestData ref) or None
+
+1. ComputeCategoryWeights(Region)
+   → returns weight floats for Main/Side/Exploration/Bounty
+   → underleveled = high Side weight; overleveled = high Main weight
+
+2. RemainingCategories = [Main, Side, Exploration, Bounty]
+
+3. WHILE RemainingCategories not empty:
+   a. Sum weights of remaining categories → TotalWeight
+   b. RandomRoll = Random(0, TotalWeight)
+   c. Walk categories, accumulate RunningSum
+      → first category where RunningSum >= RandomRoll = PickedCategory
+   d. Pool = GetAvailableQuests(PickedCategory, Region)
+   e. IF Pool not empty:
+      → Draw random quest from Pool
+      → UnlockQuest(DrawnQuest)
+      → Broadcast OnQuestUnlocked
+      → RETURN DrawnQuest
+   f. ELSE:
+      → Remove PickedCategory from RemainingCategories
+      → continue loop
+
+4. IF all categories exhausted → RETURN None
+   (trigger handles gracefully - idle chatter, empty board, etc.)</div>
+
+        <!-- Devlog / demo video -->
+        <h2 class="doc-h2">System Demo</h2>
+        <div class="doc-video-wrap">
+          <div class="doc-video-frame">
+            <!-- <iframe src="https://www.youtube.com/embed/YOUR_VIDEO_ID" title="Quest Director demo" allowfullscreen></iframe> -->
+            <div class="doc-video-placeholder">
+              <span class="doc-video-placeholder-icon">▶</span>
+              <span class="doc-video-placeholder-text">Quest Director demo - weighted draw in action</span>
+            </div>
+          </div>
+          <p class="doc-video-caption">Demo: DrawAndUnlockQuest running across different PlayerPowerLevel values - showing category shift</p>
+        </div>
+
+        <h2 class="doc-h2">Trigger Systems</h2>
+        <table class="doc-table">
+          <tr><th>Trigger</th><th>Mechanic</th><th>Status</th></tr>
+          <tr><td>Interrogation</td><td>Last enemy in squad → DrawAndUnlockQuest</td><td class="todo">Planned</td></tr>
+          <tr><td>Camp Visitor</td><td>Weighted NPC at rest point → dialogue → draw</td><td class="todo">Planned</td></tr>
+          <tr><td>Settler Quest Giver</td><td>NPC in settlement → interact → dialogue → draw</td><td class="todo">Planned</td></tr>
+          <tr><td>Bounty Board</td><td>Board actor → interact → draw (no dialogue)</td><td class="todo">Planned</td></tr>
+        </table>
+      </article>
+
+      <!-- ══ QUEST UI ══ -->
+      <article class="doc-page" id="page-quest-ui">
+        <h1 class="doc-h1">Quest UI</h1>
+        <div class="doc-meta">
+          <span class="topbar-badge badge-unreal">Unreal Engine 5.7</span>
+          <span class="topbar-badge badge-wip">In Development</span>
+        </div>
+        <p class="doc-p">The Quest Log lives inside the Pause Menu and uses a three-box layout: questline sections (Box 1), quest entries for the selected section (Box 2), and a detail panel for the selected entry (Box 3).</p>
+
+        <!-- Full quest UI screenshot -->
+        <div class="doc-img-grid single">
+          <figure class="doc-img-slot">
+            <div class="doc-img-wrap" data-slot="Quest Log full screenshot">
+              <!-- <img src="../../media/goy/quest-log.png" alt="Quest Log open in Pause Menu" /> -->
+            </div>
+            <span class="doc-img-caption">WBP_QuestTab - three-box layout with section, entries, and detail panel</span>
+          </figure>
+        </div>
+
+        <h2 class="doc-h2">Widget Hierarchy</h2>
+        <div class="doc-code">WBP_PauseMenu
+└── Widget Switcher (Tab = 1: Quests)
+    └── WBP_QuestTab
+        ├── Box 1 - ScrollBox of WBP_QuestSection (one per questline)
+        │   └── WBP_QuestSection → bubbles OnSectionClicked
+        ├── Box 2 - ScrollBox of WBP_QuestEntry (one per quest in section)
+        │   └── WBP_QuestEntry → bubbles OnEntryClicked
+        └── Box 3 - Single WBP_QuestDetail (persistent, updated in place)</div>
+
+        <h2 class="doc-h2">Design Rule - Discovered Only</h2>
+        <div class="doc-callout"><strong>Only discovered questlines appear in the log</strong> - matching Ghost of Tsushima / Yōtei's own Tales list. Showing "The Kitsune" before you've encountered it would spoil that the storyline exists at all. The log builds from BP_YoteiGameInstance's ActiveQuests and CompletedQuests arrays, grouped by QuestLine field.</div>
+
+        <!-- Detail panel screenshot -->
+        <div class="doc-img-grid two">
+          <figure class="doc-img-slot">
+            <div class="doc-img-wrap" data-slot="Quest entry selected screenshot">
+              <!-- <img src="../../media/goy/quest-entry.png" alt="Quest entry selected" /> -->
+            </div>
+            <span class="doc-img-caption">WBP_QuestEntry - selected state with highlight</span>
+          </figure>
+          <figure class="doc-img-slot">
+            <div class="doc-img-wrap" data-slot="Quest detail panel screenshot">
+              <!-- <img src="../../media/goy/quest-detail.png" alt="Quest detail panel" /> -->
+            </div>
+            <span class="doc-img-caption">WBP_QuestDetail - stage text, description, and track button</span>
+          </figure>
+        </div>
+      </article>
+
+      <!-- ══ DIALOGUE ══ -->
+      <article class="doc-page" id="page-dialogue">
+        <h1 class="doc-h1">Dialogue System</h1>
+        <div class="doc-meta">
+          <span class="topbar-badge badge-unreal">Unreal Engine 5.7</span>
+          <span class="topbar-badge badge-wip">In Development</span>
+        </div>
+        <p class="doc-p">A Yōtei-style auto-advance system. Lines play through on a timer derived from the voice clip duration - no Continue button. The only player input available is hold-to-skip the entire conversation.</p>
+
+        <div class="doc-callout"><strong>Confirmed from research:</strong> Ghost of Yōtei's dialogue is fully automated - lines play on their own, you cannot advance line-by-line, and the only available input is hold-to-skip the whole cutscene. V1 matches that exactly.</div>
+
+        <!-- Dialogue screenshot + video -->
+        <div class="doc-img-grid single">
+          <figure class="doc-img-slot">
+            <div class="doc-img-wrap" data-slot="Dialogue box in game screenshot">
+              <!-- <img src="../../media/goy/dialogue-box.png" alt="Dialogue box in game" /> -->
+            </div>
+            <span class="doc-img-caption">WBP_DialogueBox - subtitle overlay with auto-advance timer running</span>
+          </figure>
+        </div>
+
+        <h2 class="doc-h2">Auto-Advance Timing</h2>
+        <div class="doc-code">Duration = MAX(GetSoundDuration(VoiceClip), MinLineDuration)
+// MinLineDuration default: 2.5 s
+// Guarantees silent test rows hold long enough to read
+
+SetTimer(Duration) → fires AdvanceDialogue → reads NextLineID
+// If NextLineID is empty Name → EndDialogue
+// If NextLineID has a Choices array (v2) → show choice buttons instead</div>
+
+        <h2 class="doc-h2">Two-Shot Camera</h2>
+        <p class="doc-p"><span class="doc-inline">BP_DialogueCamera</span> (a CineCameraActor subclass) is repositioned by <span class="doc-inline">ActivateDialogueCamera</span> at the start of every conversation:</p>
+        <div class="doc-code">Midpoint = (SpeakerLocation + PlayerLocation) / 2
+Offset   = Midpoint + (Right Vector * SideDistance) + (Up * HeightOffset)
+Camera → SetActorLocation(Offset)
+Camera → LookAt(Midpoint)</div>
+
+        <!-- Dialogue system video -->
+        <h2 class="doc-h2">System Demo</h2>
+        <div class="doc-video-wrap">
+          <div class="doc-video-frame">
+            <!-- <iframe src="https://www.youtube.com/embed/YOUR_VIDEO_ID" title="Dialogue system demo" allowfullscreen></iframe> -->
+            <div class="doc-video-placeholder">
+              <span class="doc-video-placeholder-icon">▶</span>
+              <span class="doc-video-placeholder-text">Dialogue system - auto-advance + two-shot camera demo</span>
+            </div>
+          </div>
+          <p class="doc-video-caption">Demo: auto-advance dialogue running with two mannequins and the two-shot BP_DialogueCamera</p>
+        </div>
+
+        <div class="doc-callout warn"><strong>Gotcha:</strong> WBP_DialogueBox must be created at level start in BeginPlay, not on first Interact. If it's created on Interact, its Bind Event won't be listening in time for that very first call - the first line silently fires and nothing shows.</div>
+      </article>
+
+      <!-- ══ WIDGETS ══ -->
+      <article class="doc-page" id="page-widgets">
+        <h1 class="doc-h1">All Widgets</h1>
+        <div class="doc-meta">
+          <span class="topbar-badge badge-unreal">Unreal Engine 5.7</span>
+          <span class="topbar-badge badge-wip">In Development</span>
+        </div>
+        <p class="doc-p">Every widget is UMG-based, event-driven, and never polls in Tick. All state binds in Event Construct via Event Dispatchers.</p>
+
+        <table class="doc-table">
+          <tr><th>Widget</th><th>Role</th><th>Binds To</th><th>Status</th></tr>
+          <tr><td><span class="doc-inline">WBP_HealthBar</span></td><td>Screen-space progress bar</td><td>OnDamaged, OnHealed, OnDeath</td><td class="done">✓</td></tr>
+          <tr><td><span class="doc-inline">WBP_InteractionPrompt</span></td><td>Icon + text near crosshair</td><td>ShowPrompt / HidePrompt</td><td class="done">✓</td></tr>
+          <tr><td><span class="doc-inline">WBP_DialogueBox</span></td><td>Subtitle panel</td><td>OnLineChanged dispatcher</td><td class="wip">⟳</td></tr>
+          <tr><td><span class="doc-inline">WBP_PauseMenu</span></td><td>Tab-based pause overlay</td><td>IA_ToggleMenu via BP_PlayerController</td><td class="wip">⟳</td></tr>
+          <tr><td><span class="doc-inline">WBP_QuestTab</span></td><td>Quest Log inside Pause Menu</td><td>OnQuestUnlocked, OnQuestCompleted</td><td class="wip">⟳</td></tr>
+          <tr><td><span class="doc-inline">WBP_QuestSection</span></td><td>One questline group</td><td>Parent WBP_QuestTab</td><td class="wip">⟳</td></tr>
+          <tr><td><span class="doc-inline">WBP_QuestEntry</span></td><td>Single quest row</td><td>Parent WBP_QuestSection</td><td class="wip">⟳</td></tr>
+          <tr><td><span class="doc-inline">WBP_QuestDetail</span></td><td>Right-panel detail view</td><td>OnEntryClicked → SetQuestDetail</td><td class="wip">⟳</td></tr>
+        </table>
+
+        <h2 class="doc-h2">Tab Key Fix - BP_PlayerController</h2>
+        <p class="doc-p">The pause menu toggle was moved from BP_PlayerCharacter to BP_PlayerController. Character input is not guaranteed to keep processing once <span class="doc-inline">Set Game Paused</span> is active. A PlayerController is.</p>
+        <p class="doc-p">Closing is handled by WBP_PauseMenu's own <span class="doc-inline">On Preview Key Down</span> override - not through a Controller bool - which sidesteps the state-desync bug that caused Tab to get stuck only ever opening.</p>
+
+        <!-- Widget screenshots -->
+        <div class="doc-img-grid">
+          <figure class="doc-img-slot">
+            <div class="doc-img-wrap" data-slot="WBP_HealthBar screenshot">
+              <!-- <img src="../../media/goy/widget-health.png" alt="Health bar" /> -->
+            </div>
+            <span class="doc-img-caption">WBP_HealthBar</span>
+          </figure>
+          <figure class="doc-img-slot">
+            <div class="doc-img-wrap" data-slot="WBP_InteractionPrompt screenshot">
+              <!-- <img src="../../media/goy/widget-interact.png" alt="Interaction prompt" /> -->
+            </div>
+            <span class="doc-img-caption">WBP_InteractionPrompt</span>
+          </figure>
+          <figure class="doc-img-slot">
+            <div class="doc-img-wrap" data-slot="WBP_PauseMenu screenshot">
+              <!-- <img src="../../media/goy/widget-pause.png" alt="Pause menu" /> -->
+            </div>
+            <span class="doc-img-caption">WBP_PauseMenu (Tab)</span>
+          </figure>
+        </div>
+      </article>
+
+      <!-- ══ ROADMAP ══ -->
+      <article class="doc-page" id="page-roadmap">
+        <h1 class="doc-h1">Roadmap</h1>
+        <div class="doc-meta">
+          <span class="topbar-badge badge-unreal">Unreal Engine 5.7</span>
+        </div>
+
+        <h2 class="doc-h2">Must-Do - Studio-Impressive</h2>
+        <ul class="doc-ul">
+          <li><strong style="color:var(--text)">Cinematic Dialogue + voice files</strong> - first, because Camp and Settler both depend on it</li>
+          <li><strong style="color:var(--text)">Camp trigger</strong> - random NPC visitor at rest point → dialogue → quest draw</li>
+          <li><strong style="color:var(--text)">Settler trigger</strong> - NPC in settlement → interact → dialogue → draw</li>
+          <li><strong style="color:var(--text)">Bounty Board</strong> - board actor → interact → draw (no dialogue needed)</li>
+          <li><strong style="color:var(--text)">Combat system</strong> - melee core, parry, dodge</li>
+          <li><strong style="color:var(--text)">Enemy NPC</strong> - patrol AI, squad tracking, interrogation (last enemy → draw)</li>
+          <li><strong style="color:var(--text)">Ally recruitment</strong> - the payoff the Quest Director was built to deliver</li>
+        </ul>
+
+        <h2 class="doc-h2">Complimentary - Complete Game</h2>
+        <ul class="doc-ul">
+          <li>Inventory system - prerequisite for different weapons</li>
+          <li>Map system - prerequisite for Follow Quest marker</li>
+          <li>Enemy types and camps - liberating nation mechanic</li>
+          <li>Horse riding</li>
+          <li>Boss encounters</li>
+          <li>Multiple weapon types</li>
+        </ul>
+
+        <h2 class="doc-h2">Dependency Order</h2>
+        <div class="doc-code">Dialogue System
+    ↓
+Camp + Settler + Bounty Board  (all need Dialogue)
+    ↓
+Combat System
+    ↓
+Enemy NPC  (needs Combat)
+    ↓
+Ally Recruitment  (needs Quest + Enemy + Dialogue)</div>
+      </article>
+
+    </main>
+  </div>
+
+  <!-- FOOTER -->
+  <footer class="wiki-footer">
+    <span class="wiki-footer-logo"><span>OUGA</span>DEV · Docs</span>
+    <span class="wiki-footer-copy">Ghost of Yōtei (UE5) - updated as development progresses</span>
+  </footer>
+
+  <script>
+    /* ── SIDEBAR NAV ─────────────────────────── */
+    const links = document.querySelectorAll('.sidebar-link');
+    const pages = document.querySelectorAll('.doc-page');
+
+    function showPage(id) {
+      pages.forEach(p => p.classList.toggle('active', p.id === `page-${id}`));
+      links.forEach(l => l.classList.toggle('active', l.dataset.page === id));
+      window.scrollTo(0, 0);
+    }
+
+    links.forEach(link => {
+      link.addEventListener('click', () => {
+        showPage(link.dataset.page);
+        // close mobile sidebar
+        sidebar.classList.remove('open');
+        ham.classList.remove('open');
+      });
+    });
+
+    // default page
+    showPage('overview');
+
+    /* ── MOBILE SIDEBAR ──────────────────────── */
+    const sidebar = document.getElementById('wikiSidebar');
+    const ham     = document.getElementById('hamDocs');
+    ham.addEventListener('click', () => {
+      ham.classList.toggle('open');
+      sidebar.classList.toggle('open');
+    });
+
+    /* ── TOP BAR SCROLL SHADOW ───────────────── */
+    // (already has solid bg, no scroll effect needed)
+  </script>
+</body>
+</html>

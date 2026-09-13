@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Projects - OUGADEV</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700;800&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #07071A; --deep: #0C0C22; --surface: #12122C; --border: #1C1C3D; --border-l: #272752;
+      --violet: #7B5CF0; --violet-l: #9D7FF5; --vglow: rgba(123,92,240,.13); --vglow-s: rgba(123,92,240,.26);
+      --coral: #FF4F6D; --gold: #F5C542; --teal: #1EC8A3;
+      --text: #EAEAFF; --muted: #6B6B9B; --dim: #37375A;
+      --fd: 'Space Grotesk', sans-serif; --fb: 'Outfit', sans-serif;
+      --ease: cubic-bezier(.4,0,.2,1); --r: 12px;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body { background: var(--bg); color: var(--text); font-family: var(--fb); font-size: 16px; line-height: 1.65; }
+    h1,h2,h3 { font-family: var(--fd); }
+    a { color: inherit; text-decoration: none; }
+    ::-webkit-scrollbar { width: 5px; }
+    ::-webkit-scrollbar-thumb { background: var(--border-l); border-radius: 3px; }
+
+    /* top bar */
+    .topbar { position: sticky; top: 0; z-index: 100; height: 52px; background: rgba(7,7,26,.95); backdrop-filter: blur(16px); border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; padding: 0 40px; }
+    .topbar-left { display: flex; align-items: center; gap: 6px; font-size: .83rem; color: var(--dim); }
+    .crumb { color: var(--dim); transition: color .2s; }
+    .crumb:hover { color: var(--muted); }
+    .crumb.active { color: var(--text); font-weight: 500; }
+    .sep { opacity: .4; }
+    .back-btn { display: inline-flex; align-items: center; gap: 6px; font-size: .8rem; font-weight: 600; color: var(--muted); padding: 6px 14px; border-radius: 6px; border: 1px solid var(--border); transition: all .22s var(--ease); }
+    .back-btn:hover { border-color: var(--violet); color: var(--violet); }
+
+    /* hero */
+    .hero { padding: 80px 40px 60px; max-width: 900px; margin: 0 auto; }
+    .eye { font-size: .7rem; font-weight: 700; letter-spacing: .18em; text-transform: uppercase; color: var(--violet); margin-bottom: 10px; }
+    .title { font-family: var(--fd); font-size: clamp(2rem, 5vw, 3.2rem); font-weight: 800; letter-spacing: -.04em; color: var(--text); margin-bottom: 14px; }
+    .desc { color: var(--muted); font-size: .97rem; max-width: 500px; line-height: 1.8; }
+
+    /* grid */
+    .projects-grid { max-width: 900px; margin: 0 auto; padding: 0 40px 100px; display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 20px; }
+
+    .proj-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--r); overflow: hidden; transition: all .3s var(--ease); display: flex; flex-direction: column; }
+    .proj-card:hover { border-color: var(--violet); transform: translateY(-5px); box-shadow: 0 20px 50px rgba(0,0,0,.35); }
+    .proj-card.coming-soon { opacity: .45; pointer-events: none; }
+
+    .proj-thumb { width: 100%; aspect-ratio: 16/7; display: flex; align-items: center; justify-content: center; font-size: 3rem; position: relative; overflow: hidden; }
+    .proj-thumb::after { content: ''; position: absolute; inset: 0; background: repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,.08) 2px,rgba(0,0,0,.08) 4px); pointer-events: none; }
+
+    .proj-body { padding: 22px 24px 26px; flex: 1; display: flex; flex-direction: column; gap: 10px; }
+    .proj-badges { display: flex; gap: 7px; flex-wrap: wrap; }
+    .badge { font-size: .67rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; padding: 3px 9px; border-radius: 4px; }
+    .badge-engine-unreal { color: var(--teal); background: rgba(30,200,163,.1); border: 1px solid rgba(30,200,163,.25); }
+    .badge-engine-unity  { color: #5B8DEF; background: rgba(91,141,239,.1); border: 1px solid rgba(91,141,239,.25); }
+    .badge-wip           { color: var(--gold); background: rgba(245,197,66,.1); border: 1px solid rgba(245,197,66,.25); }
+    .badge-done          { color: var(--teal); background: rgba(30,200,163,.1); border: 1px solid rgba(30,200,163,.25); }
+    .badge-soon          { color: var(--dim); background: transparent; border: 1px solid var(--border); }
+
+    .proj-name { font-family: var(--fd); font-size: 1.2rem; font-weight: 700; letter-spacing: -.025em; color: var(--text); }
+    .proj-desc { font-size: .88rem; color: var(--muted); line-height: 1.7; flex: 1; }
+    .proj-link { display: inline-flex; align-items: center; gap: 7px; font-size: .87rem; font-weight: 600; color: var(--violet); margin-top: 6px; transition: gap .22s, color .22s; }
+    .proj-link:hover { color: var(--violet-l); gap: 11px; }
+
+    /* footer */
+    .footer { background: var(--deep); border-top: 1px solid var(--border); padding: 28px 40px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 14px; }
+    .footer-logo { font-family: var(--fd); font-weight: 800; font-size: 1rem; letter-spacing: -.025em; color: var(--dim); }
+    .footer-logo span { color: var(--violet); }
+    .footer-copy { font-size: .75rem; color: var(--dim); }
+
+    @media (max-width: 700px) {
+      .topbar { padding: 0 20px; }
+      .hero { padding: 60px 20px 40px; }
+      .projects-grid { padding: 0 20px 80px; grid-template-columns: 1fr; }
+      .footer { padding: 24px 20px; flex-direction: column; text-align: center; }
+    }
+  </style>
+</head>
+<body>
+
+  <header class="topbar">
+    <div class="topbar-left">
+      <a href="../index.html" class="crumb">OUGADEV</a>
+      <span class="sep">/</span>
+      <span class="crumb active">Projects</span>
+    </div>
+    <a href="../index.html" class="back-btn">← Back to Portfolio</a>
+  </header>
+
+  <section class="hero">
+    <p class="eye">Dev Documentation</p>
+    <h1 class="title">All Projects</h1>
+    <p class="desc">Architecture notes, system breakdowns, and build logs for every project I'm working on - updated as development progresses.</p>
+  </section>
+
+  <div class="projects-grid">
+
+    <!-- Ghost of Yotei -->
+    <a href="yotei/index.html" class="proj-card">
+      <div class="proj-thumb" style="background: linear-gradient(140deg, #060612 0%, #12082A 50%, #080F1E 100%);">⚔️</div>
+      <div class="proj-body">
+        <div class="proj-badges">
+          <span class="badge badge-engine-unreal">Unreal 5.7</span>
+          <span class="badge badge-wip">In Dev</span>
+        </div>
+        <div class="proj-name">Ghost of Yōtei (UE5)</div>
+        <p class="proj-desc">Third-person open-world action game inspired by Ghost of Tsushima. Blueprint-only, studio-pattern systems. Weighted quest director, cinematic dialogue, AI.</p>
+        <span class="proj-link">View Docs →</span>
+      </div>
+    </a>
+
+    <!-- Placeholder for future project -->
+    <div class="proj-card coming-soon">
+      <div class="proj-thumb" style="background: linear-gradient(140deg, #0A0A18 0%, #141428 100%);">📁</div>
+      <div class="proj-body">
+        <div class="proj-badges">
+          <span class="badge badge-soon">Coming Soon</span>
+        </div>
+        <div class="proj-name">Next Project</div>
+        <p class="proj-desc">Documentation will appear here as the next project kicks off.</p>
+      </div>
+    </div>
+
+  </div>
+
+  <footer class="footer">
+    <span class="footer-logo"><span>OUGA</span>DEV · Docs</span>
+    <span class="footer-copy">Updated as development progresses</span>
+  </footer>
+
+</body>
+</html>
