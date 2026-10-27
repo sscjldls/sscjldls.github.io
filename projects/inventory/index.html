@@ -1,0 +1,609 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="icon" type="image/png" href="../../media/purpleLogo.png" />
+  <title>Inventory System (UE5) | OUGADEV Docs</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700;800&family=Outfit:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg:        #07071A;
+      --deep:      #0C0C22;
+      --surface:   #12122C;
+      --surface-h: #18183A;
+      --border:    #1C1C3D;
+      --border-l:  #272752;
+      --violet:    #7B5CF0;
+      --violet-l:  #9D7FF5;
+      --vglow:     rgba(123,92,240,.13);
+      --vglow-s:   rgba(123,92,240,.26);
+      --coral:     #FF4F6D;
+      --cglow:     rgba(255,79,109,.13);
+      --gold:      #F5C542;
+      --teal:      #1EC8A3;
+      --text:      #EAEAFF;
+      --muted:     #6B6B9B;
+      --dim:       #37375A;
+      --fd: 'Space Grotesk', sans-serif;
+      --fb: 'Outfit', sans-serif;
+      --fm: 'JetBrains Mono', monospace;
+      --ease: cubic-bezier(.4,0,.2,1);
+      --r: 10px;
+      --sidebar: 248px;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body { background: var(--bg); color: var(--text); font-family: var(--fb); font-size: 15px; line-height: 1.65; overflow-x: hidden; }
+    h1,h2,h3,h4 { font-family: var(--fd); line-height: 1.15; }
+    a { color: inherit; text-decoration: none; }
+    img { display: block; max-width: 100%; }
+    button { cursor: pointer; font-family: var(--fb); border: none; background: none; }
+    ::-webkit-scrollbar { width: 4px; }
+    ::-webkit-scrollbar-track { background: var(--bg); }
+    ::-webkit-scrollbar-thumb { background: var(--border-l); border-radius: 3px; }
+    ::-webkit-scrollbar-thumb:hover { background: var(--violet); }
+    ::selection { background: var(--vglow-s); color: var(--text); }
+
+    /* TOP BAR */
+    .topbar {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 200;
+      height: 52px;
+      background: rgba(7,7,26,.95); backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 24px;
+    }
+    .topbar-left { display: flex; align-items: center; gap: 6px; font-size: .83rem; color: var(--dim); }
+    .topbar-logo { height: 24px; width: 24px; object-fit: contain; border-radius: 50%; margin-right: 2px; opacity: .85; }
+    .topbar-crumb { color: var(--dim); transition: color .2s; }
+    .topbar-crumb:hover { color: var(--muted); }
+    .topbar-crumb.active { color: var(--text); font-weight: 500; }
+    .topbar-sep { opacity: .4; }
+    .topbar-right { display: flex; align-items: center; gap: 10px; }
+    .badge { font-size: .68rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; padding: 3px 10px; border-radius: 4px; }
+    .badge-unreal { color: var(--teal); background: rgba(30,200,163,.1); border: 1px solid rgba(30,200,163,.25); }
+    .badge-wip    { color: var(--gold); background: rgba(245,197,66,.1); border: 1px solid rgba(245,197,66,.25); }
+    .badge-done   { color: var(--teal); background: rgba(30,200,163,.1); border: 1px solid rgba(30,200,163,.25); }
+    .badge-plan   { color: var(--muted); background: transparent; border: 1px solid var(--border); }
+    .topbar-back {
+      display: inline-flex; align-items: center; gap: 6px;
+      font-size: .8rem; font-weight: 600; color: var(--muted);
+      padding: 6px 14px; border-radius: 6px;
+      border: 1px solid var(--border); transition: all .22s var(--ease);
+    }
+    .topbar-back:hover { border-color: var(--violet); color: var(--violet); }
+    .topbar-badges { display: flex; gap: 8px; }
+    .ham-docs { display: none; flex-direction: column; gap: 4px; padding: 4px; color: var(--muted); }
+    .ham-docs span { display: block; width: 18px; height: 1.5px; background: currentColor; border-radius: 2px; transition: all .28s var(--ease); }
+    .ham-docs.open span:nth-child(1) { transform: translateY(5.5px) rotate(45deg); }
+    .ham-docs.open span:nth-child(2) { opacity: 0; }
+    .ham-docs.open span:nth-child(3) { transform: translateY(-5.5px) rotate(-45deg); }
+
+    /* PROJECT HERO */
+    .proj-hero {
+      margin-top: 52px; padding: 56px 40px 40px;
+      background: var(--deep); border-bottom: 1px solid var(--border);
+      position: relative; overflow: hidden;
+    }
+    .proj-hero-aura {
+      position: absolute; inset: 0; pointer-events: none;
+      background:
+        radial-gradient(ellipse 60% 100% at 10% 50%, rgba(245,197,66,.05) 0%, transparent 60%),
+        radial-gradient(ellipse 40% 100% at 90% 50%, rgba(123,92,240,.06) 0%, transparent 60%);
+    }
+    .proj-hero-inner { max-width: 900px; position: relative; }
+    .proj-hero-eye { font-size: .7rem; font-weight: 700; letter-spacing: .18em; text-transform: uppercase; color: var(--gold); margin-bottom: 10px; }
+    .proj-hero-title { font-family: var(--fd); font-size: clamp(1.8rem,4vw,2.8rem); font-weight: 800; letter-spacing: -.04em; color: var(--text); margin-bottom: 10px; }
+    .proj-hero-desc { color: var(--muted); font-size: .97rem; max-width: 580px; line-height: 1.8; margin-bottom: 18px; }
+    .proj-hero-meta { display: flex; gap: 8px; flex-wrap: wrap; }
+
+    /* LAYOUT */
+    .wiki-layout { display: grid; grid-template-columns: var(--sidebar) 1fr; min-height: calc(100vh - 52px); }
+
+    /* SIDEBAR */
+    .wiki-sidebar {
+      border-right: 1px solid var(--border); background: var(--deep);
+      position: sticky; top: 52px; height: calc(100vh - 52px);
+      overflow-y: auto; overflow-x: hidden; padding: 18px 0 40px;
+    }
+    .wiki-sidebar::-webkit-scrollbar { width: 3px; }
+    .sidebar-section-label { font-size: .65rem; font-weight: 700; letter-spacing: .16em; text-transform: uppercase; color: var(--dim); padding: 14px 18px 6px; }
+    .sidebar-link { display: flex; align-items: center; gap: 10px; width: 100%; text-align: left; padding: 8px 18px; font-size: .84rem; color: var(--muted); transition: color .18s, background .18s; border-left: 2px solid transparent; }
+    .sidebar-link:hover { color: var(--text); background: rgba(123,92,240,.05); }
+    .sidebar-link.active { color: var(--violet); background: var(--vglow); border-left-color: var(--violet); }
+    .sidebar-link-icon { font-size: .9rem; flex-shrink: 0; width: 18px; text-align: center; }
+    .sidebar-divider { height: 1px; background: var(--border); margin: 10px 18px; }
+
+    /* CONTENT */
+    .wiki-content { padding: 44px 56px 100px; max-width: 860px; }
+    .doc-page { display: none; }
+    .doc-page.active { display: block; }
+
+    /* TYPOGRAPHY */
+    .doc-h1 { font-family: var(--fd); font-size: 1.9rem; font-weight: 800; letter-spacing: -.04em; color: var(--text); margin-bottom: 8px; }
+    .doc-meta { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 28px; padding-bottom: 22px; border-bottom: 1px solid var(--border); }
+    .doc-h2 { font-family: var(--fd); font-size: 1.2rem; font-weight: 700; letter-spacing: -.025em; color: var(--text); margin: 38px 0 12px; padding-bottom: 8px; border-bottom: 1px solid var(--border); }
+    .doc-h3 { font-family: var(--fd); font-size: .97rem; font-weight: 700; color: var(--violet-l); margin: 22px 0 8px; }
+    .doc-p { color: var(--muted); font-size: .93rem; line-height: 1.85; margin-bottom: 14px; max-width: 660px; }
+    .doc-term { color: var(--violet-l); font-weight: 600; }
+    .doc-ul { list-style: none; margin: 10px 0 18px; display: flex; flex-direction: column; gap: 7px; }
+    .doc-ul li { position: relative; padding-left: 16px; font-size: .91rem; color: var(--muted); line-height: 1.65; }
+    .doc-ul li::before { content: '•'; color: var(--violet); position: absolute; left: 0; top: 0; }
+    .doc-callout { background: var(--vglow); border: 1px solid rgba(123,92,240,.28); border-left: 3px solid var(--violet); border-radius: 6px; padding: 13px 17px; margin: 14px 0 20px; font-size: .89rem; color: var(--muted); line-height: 1.75; max-width: 660px; }
+    .doc-callout strong { color: var(--text); }
+    .doc-callout.warn { background: rgba(245,197,66,.07); border-color: rgba(245,197,66,.3); border-left-color: var(--gold); }
+    .doc-callout.warn strong { color: var(--gold); }
+    .doc-table { width: 100%; border-collapse: collapse; margin: 12px 0 22px; font-size: .86rem; }
+    .doc-table th { text-align: left; padding: 8px 13px; background: var(--surface); border: 1px solid var(--border); color: var(--muted); font-weight: 600; font-size: .75rem; letter-spacing: .04em; }
+    .doc-table td { padding: 8px 13px; border: 1px solid var(--border); color: var(--muted); vertical-align: top; line-height: 1.55; }
+    .doc-table tr:hover td { background: var(--surface); }
+    .doc-code { font-family: var(--fm); font-size: .78rem; background: var(--deep); border: 1px solid var(--border); border-radius: 7px; padding: 14px 18px; color: #C8C0FF; overflow-x: auto; margin: 10px 0 18px; white-space: pre; line-height: 1.7; }
+    .done { color: var(--teal) !important; }
+    .wip  { color: var(--gold) !important; }
+    .todo { color: var(--dim)  !important; }
+
+    /* STATUS GRID */
+    .doc-status-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px,1fr)); gap: 10px; margin: 14px 0 24px; }
+    .doc-status-item { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 12px 14px; }
+    .doc-status-label { font-size: .73rem; color: var(--dim); font-weight: 500; margin-bottom: 4px; }
+    .doc-status-value { font-family: var(--fd); font-size: .9rem; font-weight: 700; color: var(--text); }
+
+    /* DRAFT BANNER */
+    .draft-banner {
+      background: rgba(245,197,66,.07); border: 1px solid rgba(245,197,66,.25);
+      border-left: 3px solid var(--gold); border-radius: 6px;
+      padding: 13px 17px; margin-bottom: 32px;
+      font-size: .87rem; color: var(--muted); line-height: 1.7;
+    }
+    .draft-banner strong { color: var(--gold); }
+
+    /* PLACEHOLDER SECTION */
+    .doc-placeholder {
+      background: var(--surface); border: 1.5px dashed var(--border-l);
+      border-radius: 8px; padding: 28px 24px; margin: 16px 0 24px;
+      text-align: center; color: var(--dim); font-size: .85rem; line-height: 1.7;
+    }
+    .doc-placeholder-icon { font-size: 1.6rem; margin-bottom: 10px; opacity: .5; }
+    .doc-placeholder-label { font-family: var(--fd); font-size: .8rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--dim); margin-bottom: 6px; }
+
+    /* MEDIA */
+    .doc-img-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px,1fr)); gap: 14px; margin: 16px 0 26px; }
+    .doc-img-grid.two { grid-template-columns: 1fr 1fr; }
+    .doc-img-grid.single { grid-template-columns: 1fr; max-width: 660px; }
+    .doc-img-slot { border-radius: 8px; overflow: hidden; border: 1px solid var(--border); background: var(--surface); }
+    .doc-img-wrap { width: 100%; aspect-ratio: 16/9; background: var(--deep); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; position: relative; overflow: hidden; }
+    .doc-img-wrap img  { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .doc-img-wrap:not(:has(img)) { border: 1.5px dashed var(--border-l); border-radius: 7px; }
+    .doc-img-wrap:not(:has(img))::before { content: '📷'; font-size: 1.8rem; opacity: .4; }
+    .doc-img-wrap:not(:has(img))::after  { content: attr(data-slot); font-size: .73rem; color: var(--dim); letter-spacing: .04em; text-align: center; padding: 0 16px; }
+    .doc-img-caption { display: block; font-size: .75rem; color: var(--dim); padding: 8px 12px; line-height: 1.5; border-top: 1px solid var(--border); }
+
+    /* FOOTER */
+    .wiki-footer { background: var(--deep); border-top: 1px solid var(--border); padding: 28px 40px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 14px; }
+    .wiki-footer-logo { font-family: var(--fd); font-weight: 800; font-size: 1rem; letter-spacing: -.025em; color: var(--dim); }
+    .wiki-footer-logo span { color: var(--violet); }
+    .wiki-footer-copy { font-size: .75rem; color: var(--dim); }
+
+    /* MOBILE */
+    @media (max-width: 800px) {
+      .topbar { padding: 0 16px; }
+      .topbar-badges { display: none; }
+      .ham-docs { display: flex; }
+      .proj-hero { padding: 44px 20px 30px; }
+      .wiki-layout { grid-template-columns: 1fr; }
+      .wiki-sidebar { position: fixed; top: 52px; left: 0; bottom: 0; width: var(--sidebar); z-index: 100; transform: translateX(-100%); transition: transform .3s var(--ease); border-right: 1px solid var(--border-l); box-shadow: 6px 0 30px rgba(0,0,0,.4); }
+      .wiki-sidebar.open { transform: translateX(0); }
+      .wiki-content { padding: 30px 20px 80px; }
+      .doc-img-grid.two { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- TOP BAR -->
+  <header class="topbar">
+    <div class="topbar-left">
+      <img src="../../media/purpleLogo.png" alt="" class="topbar-logo" /><a href="../../" class="topbar-crumb">OUGADEV</a>
+      <span class="topbar-sep">/</span>
+      <a href="../" class="topbar-crumb">Projects</a>
+      <span class="topbar-sep">/</span>
+      <span class="topbar-crumb active">Inventory System</span>
+    </div>
+    <div class="topbar-right">
+      <div class="topbar-badges">
+        <span class="badge badge-unreal">Unreal Engine 5.7</span>
+        <span class="badge badge-plan">Planning</span>
+      </div>
+      <a href="../" class="topbar-back">← Back to Projects</a>
+      <button class="ham-docs" id="hamDocs" aria-label="Toggle sidebar">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </header>
+
+  <!-- PROJECT HERO -->
+  <div class="proj-hero">
+    <div class="proj-hero-aura"></div>
+    <div class="proj-hero-inner">
+      <p class="proj-hero-eye">Game Systems Documentation</p>
+      <h1 class="proj-hero-title">Data-Driven Inventory System (UE5)</h1>
+      <p class="proj-hero-desc">A Blueprint-only inventory built around a JSON-imported Data Table. Items, categories, stacking rules, and equipment slots all live in data rows rather than individual Blueprint assets. Adding an item is adding a row.</p>
+      <div class="proj-hero-meta">
+        <span class="badge badge-unreal">Unreal Engine 5.7</span>
+        <span class="badge badge-plan">Planning</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- WIKI LAYOUT -->
+  <div class="wiki-layout">
+
+    <!-- SIDEBAR -->
+    <nav class="wiki-sidebar" id="wikiSidebar">
+      <div class="sidebar-section-label">Project</div>
+      <button class="sidebar-link" data-page="overview"><span class="sidebar-link-icon">🗺</span>Overview</button>
+      <button class="sidebar-link" data-page="concept"><span class="sidebar-link-icon">🧠</span>The Concept</button>
+
+      <div class="sidebar-divider"></div>
+      <div class="sidebar-section-label">Inventory System</div>
+      <button class="sidebar-link" data-page="itemdata"><span class="sidebar-link-icon">📋</span>Item Data</button>
+      <button class="sidebar-link" data-page="manager"><span class="sidebar-link-icon">⚙️</span>Item Manager</button>
+      <button class="sidebar-link" data-page="pickups"><span class="sidebar-link-icon">📦</span>Pickups</button>
+      <button class="sidebar-link" data-page="ui"><span class="sidebar-link-icon">🖥</span>Inventory UI</button>
+
+      <div class="sidebar-divider"></div>
+      <div class="sidebar-section-label">Equipment</div>
+      <button class="sidebar-link" data-page="equipment"><span class="sidebar-link-icon">⚔️</span>Equipment Slots</button>
+
+      <div class="sidebar-divider"></div>
+      <div class="sidebar-section-label">Planning</div>
+      <button class="sidebar-link" data-page="roadmap"><span class="sidebar-link-icon">🧭</span>Roadmap</button>
+    </nav>
+
+    <!-- CONTENT -->
+    <main class="wiki-content" id="wikiContent">
+
+      <!-- OVERVIEW -->
+      <article class="doc-page" id="page-overview">
+        <h1 class="doc-h1">Overview</h1>
+        <div class="doc-meta">
+          <span class="badge badge-unreal">Unreal Engine 5.7</span>
+          <span class="badge badge-plan">Planning</span>
+        </div>
+
+        <div class="draft-banner">
+          <strong>Draft.</strong> This page is being planned. Content will fill in as development starts.
+        </div>
+
+        <p class="doc-p">A data-driven inventory system built Blueprint-only in Unreal Engine 5.7. The design follows the same principle as the Quest System: item definitions live in a single Data Table imported from JSON. No item-specific Blueprint assets. The <span class="doc-term">ItemManager</span> Game Instance Subsystem is the only place runtime inventory state lives, and every UI widget reacts to events rather than polling state on Tick.</p>
+
+        <h2 class="doc-h2">What's Done</h2>
+        <div class="doc-status-grid">
+          <div class="doc-status-item"><div class="doc-status-label">Item Data Table</div><div class="doc-status-value todo">Planned</div></div>
+          <div class="doc-status-item"><div class="doc-status-label">Item Manager</div><div class="doc-status-value todo">Planned</div></div>
+          <div class="doc-status-item"><div class="doc-status-label">Pickup Actor</div><div class="doc-status-value todo">Planned</div></div>
+          <div class="doc-status-item"><div class="doc-status-label">Inventory UI</div><div class="doc-status-value todo">Planned</div></div>
+          <div class="doc-status-item"><div class="doc-status-label">Equipment Slots</div><div class="doc-status-value todo">Planned</div></div>
+          <div class="doc-status-item"><div class="doc-status-label">Stacking Logic</div><div class="doc-status-value todo">Planned</div></div>
+        </div>
+
+        <h2 class="doc-h2">In-Engine Screenshots</h2>
+        <div class="doc-img-grid two">
+          <figure class="doc-img-slot">
+            <div class="doc-img-wrap" data-slot="Inventory UI - add screenshot when done"></div>
+            <span class="doc-img-caption">Inventory UI running in-engine</span>
+          </figure>
+          <figure class="doc-img-slot">
+            <div class="doc-img-wrap" data-slot="Item pickup in world - add screenshot when done"></div>
+            <span class="doc-img-caption">Item pickup actor in world</span>
+          </figure>
+        </div>
+      </article>
+
+      <!-- CONCEPT -->
+      <article class="doc-page" id="page-concept">
+        <h1 class="doc-h1">The Concept</h1>
+        <div class="doc-meta">
+          <span class="badge badge-unreal">Unreal Engine 5.7</span>
+        </div>
+
+        <p class="doc-p">Instead of creating a separate Blueprint asset for every weapon, potion, or piece of gear, each item is a row in a Data Table. The table defines everything about an item: its name, description, icon, category, stack limit, and which equipment slot it goes in. Adding a sword to the game means adding one row, not creating a new BP_Sword class.</p>
+
+        <h2 class="doc-h2">Why Data Tables</h2>
+        <ul class="doc-ul">
+          <li>Designers can add or tweak items in a spreadsheet without opening the Blueprint editor.</li>
+          <li>The same pickup actor handles every item type. No per-item Actor subclasses.</li>
+          <li>The UI reads from the same table to display names, icons, and descriptions - single source of truth.</li>
+          <li>Exporting and importing JSON means the item database can live outside the project (in a Google Sheet, say) and sync back in.</li>
+        </ul>
+
+        <div class="doc-callout">
+          <strong>Same pattern as the Quest System.</strong> <span class="doc-term">BP_YoteiGameInstance</span> owns quest state; <span class="doc-term">ItemManager</span> will own inventory state. Both systems use Data Tables and event dispatchers so the UI never polls. Keeping the pattern consistent means the two systems will be easy to connect later, for example when a quest completion hands the player a reward item.
+        </div>
+
+        <h2 class="doc-h2">How It's Built</h2>
+        <ul class="doc-ul">
+          <li><span class="doc-term">ItemManager</span> is a Game Instance Subsystem. It is the only place the player's current inventory array lives.</li>
+          <li>Every widget that shows inventory data binds to <span class="doc-term">OnItemAdded</span> and <span class="doc-term">OnItemRemoved</span> dispatchers in Event Construct. No Tick reads.</li>
+          <li>Items are identified by their Data Table row name. The row name is what gets stored in the inventory array, not a full copy of the item struct.</li>
+          <li>Equipment state is a separate Map on the subsystem: slot enum to item row name. Equipping an item writes to the map and broadcasts <span class="doc-term">OnEquipmentChanged</span>.</li>
+        </ul>
+      </article>
+
+      <!-- ITEM DATA -->
+      <article class="doc-page" id="page-itemdata">
+        <h1 class="doc-h1">Item Data</h1>
+        <div class="doc-meta">
+          <span class="badge badge-unreal">Unreal Engine 5.7</span>
+          <span class="badge badge-plan">Planning</span>
+        </div>
+
+        <p class="doc-p">All item definitions live in a single Data Table using a custom struct. This is the schema being planned - fields may change as development starts.</p>
+
+        <h2 class="doc-h2">Item Struct Fields</h2>
+        <table class="doc-table">
+          <tr><th>Field</th><th>Type</th><th>Purpose</th></tr>
+          <tr><td>ItemName</td><td>Text</td><td>Display name shown in the inventory UI</td></tr>
+          <tr><td>Description</td><td>Text</td><td>Flavor text shown in the item detail panel</td></tr>
+          <tr><td>Icon</td><td>Texture2D (soft ref)</td><td>Icon displayed in inventory slots</td></tr>
+          <tr><td>Category</td><td>E_ItemCategory</td><td>Weapon / Armor / Consumable / Quest / Misc - drives sorting and slot rules</td></tr>
+          <tr><td>EquipSlot</td><td>E_EquipSlot</td><td>Which slot this item occupies when equipped. None for non-equippable items.</td></tr>
+          <tr><td>MaxStack</td><td>Integer</td><td>How many of this item fit in one inventory slot. 1 for unique items.</td></tr>
+          <tr><td>Weight</td><td>Float</td><td>Contribution to carry weight. 0 for weightless items like quest items.</td></tr>
+          <tr><td>IsQuestItem</td><td>Bool</td><td>Quest items cannot be dropped or sold and are hidden from the main inventory grid.</td></tr>
+        </table>
+
+        <div class="doc-callout warn">
+          <strong>Still deciding:</strong> whether stats (damage, defense, etc.) live as fields on this struct or on a separate linked table keyed by row name. A separate table keeps the base item definition clean and makes it easier to add stat variation (quality tiers, upgrades) later without touching the core struct.
+        </div>
+
+        <h2 class="doc-h2">Category Enum</h2>
+        <div class="doc-code">E_ItemCategory:
+  Weapon        // swords, bows, tools
+  Armor         // head, chest, hands, feet
+  Consumable    // potions, food, throwables
+  Quest         // key items, notes, special objects
+  Misc          // sellable junk, crafting materials</div>
+
+        <div class="doc-placeholder">
+          <div class="doc-placeholder-icon">📋</div>
+          <div class="doc-placeholder-label">Item Table Screenshot</div>
+          Add a screenshot of the Data Table open in the Unreal editor once populated with some test rows.
+        </div>
+      </article>
+
+      <!-- ITEM MANAGER -->
+      <article class="doc-page" id="page-manager">
+        <h1 class="doc-h1">Item Manager</h1>
+        <div class="doc-meta">
+          <span class="badge badge-unreal">Unreal Engine 5.7</span>
+          <span class="badge badge-plan">Planning</span>
+        </div>
+
+        <p class="doc-p"><span class="doc-term">ItemManager</span> is a Game Instance Subsystem that owns the player's inventory array and broadcasts changes. Every other system calls into it - pickups call <span class="doc-term">AddItem</span>, the UI calls <span class="doc-term">RemoveItem</span>, and the equipment system calls <span class="doc-term">EquipItem</span>.</p>
+
+        <h2 class="doc-h2">Core Functions (Planned)</h2>
+        <div class="doc-code">AddItem(RowName, Quantity)
+  - Find existing stack for this row name if stackable
+  - If stack exists and has room: increment quantity
+  - Else: add new inventory entry
+  - Broadcast OnItemAdded
+
+RemoveItem(RowName, Quantity)
+  - Find stack, decrement quantity
+  - If quantity reaches 0: remove entry from array
+  - Broadcast OnItemRemoved
+
+EquipItem(RowName)
+  - Look up EquipSlot from Data Table row
+  - If slot occupied: unequip current item first
+  - Write to EquippedItems map (slot -> row name)
+  - Broadcast OnEquipmentChanged
+
+UnequipItem(Slot)
+  - Clear slot in EquippedItems map
+  - Broadcast OnEquipmentChanged
+
+HasItem(RowName) -> Bool
+  - Used by quests and triggers to check prerequisites</div>
+
+        <h2 class="doc-h2">Subsystem Variables (Planned)</h2>
+        <table class="doc-table">
+          <tr><th>Variable</th><th>Type</th><th>Description</th></tr>
+          <tr><td>Inventory</td><td>Array of F_InventoryEntry</td><td>Each entry holds a row name and a quantity. This is the player's current items.</td></tr>
+          <tr><td>EquippedItems</td><td>Map of E_EquipSlot to Name</td><td>What's currently equipped in each slot. Empty slots are absent from the map.</td></tr>
+          <tr><td>MaxCarryWeight</td><td>Float</td><td>Total carry limit. Set by character stats. Checked before AddItem completes.</td></tr>
+          <tr><td>OnItemAdded</td><td>Event Dispatcher</td><td>Fired after any item is added. Passes the row name and new quantity.</td></tr>
+          <tr><td>OnItemRemoved</td><td>Event Dispatcher</td><td>Fired after any item is removed. Passes row name.</td></tr>
+          <tr><td>OnEquipmentChanged</td><td>Event Dispatcher</td><td>Fired when any equipment slot changes. Passes the slot enum.</td></tr>
+        </table>
+      </article>
+
+      <!-- PICKUPS -->
+      <article class="doc-page" id="page-pickups">
+        <h1 class="doc-h1">Pickups</h1>
+        <div class="doc-meta">
+          <span class="badge badge-unreal">Unreal Engine 5.7</span>
+          <span class="badge badge-plan">Planning</span>
+        </div>
+
+        <p class="doc-p">One generic pickup actor handles every item type. The only per-instance data it holds is the item's row name and a quantity. On interact, it calls <span class="doc-term">ItemManager.AddItem</span> and destroys itself.</p>
+
+        <h2 class="doc-h2">BP_ItemPickup (Planned)</h2>
+        <ul class="doc-ul">
+          <li>Exposes two variables in the editor: <span class="doc-term">ItemRowName</span> (Name) and <span class="doc-term">Quantity</span> (Integer, default 1). Both are instance-editable so level designers can drag one actor into the world and set which item it represents.</li>
+          <li>On BeginPlay: looks up the item's data in the table to pull the display name and mesh. Sets the <span class="doc-term">StaticMeshComponent</span> to whatever mesh is defined in the row. If no mesh is defined, falls back to a generic cube placeholder.</li>
+          <li>On Interact (called by the player's Interaction System): calls <span class="doc-term">ItemManager.AddItem(ItemRowName, Quantity)</span>, plays a pickup sound/effect, then destroys self.</li>
+          <li>Optionally shows a floating label above the mesh with the item name pulled from the table. The label is a <span class="doc-term">WBP_WorldLabel</span> component.</li>
+        </ul>
+
+        <div class="doc-callout warn">
+          <strong>Dependency:</strong> the pickup actor relies on the Interaction System from the Quest System being wired up. The same overlap/interact flow used by the Settler NPC trigger will drive pickup detection. No new input binding needed.
+        </div>
+
+        <div class="doc-placeholder">
+          <div class="doc-placeholder-icon">📦</div>
+          <div class="doc-placeholder-label">Pickup Actor Screenshot</div>
+          Add in-editor screenshot of BP_ItemPickup with instance variables visible in the Details panel.
+        </div>
+      </article>
+
+      <!-- INVENTORY UI -->
+      <article class="doc-page" id="page-ui">
+        <h1 class="doc-h1">Inventory UI</h1>
+        <div class="doc-meta">
+          <span class="badge badge-unreal">Unreal Engine 5.7</span>
+          <span class="badge badge-plan">Planning</span>
+        </div>
+
+        <p class="doc-p">The inventory screen lives inside the Pause Menu alongside the Quest Log, accessed via its own tab. It uses a two-panel layout: a grid of item slots on the left, a detail panel on the right.</p>
+
+        <h2 class="doc-h2">Widget Hierarchy (Planned)</h2>
+        <div class="doc-code">WBP_PauseMenu
+└── Widget Switcher (Tab index 2: Inventory)
+    └── WBP_InventoryTab
+        ├── Left: WBP_InventoryGrid
+        │   └── Grid of WBP_InventorySlot (one per inventory entry)
+        │       each slot shows the item icon and a quantity badge
+        └── Right: WBP_ItemDetail
+            shows name, description, category, weight
+            and Equip / Use / Drop buttons based on item type</div>
+
+        <h2 class="doc-h2">How Updates Work</h2>
+        <ul class="doc-ul">
+          <li><span class="doc-term">WBP_InventoryTab</span> binds to <span class="doc-term">OnItemAdded</span> and <span class="doc-term">OnItemRemoved</span> in Event Construct. When either fires, it rebuilds the grid.</li>
+          <li><span class="doc-term">WBP_ItemDetail</span> is a persistent single instance, updated in place when the player clicks a slot. It never gets rebuilt - same pattern as <span class="doc-term">WBP_QuestDetail</span> in the Quest Log.</li>
+          <li>Clicking a slot passes the item row name to the detail panel. The panel looks up the full struct from the Data Table and populates its text and icon fields.</li>
+          <li>The Equip button is only visible for equippable items. The Use button only for consumables. The Drop button hidden for quest items. All of this is driven by the item's Category and IsQuestItem fields - no per-item widget variants.</li>
+        </ul>
+
+        <div class="doc-placeholder">
+          <div class="doc-placeholder-icon">🖥</div>
+          <div class="doc-placeholder-label">Inventory UI Screenshot</div>
+          Add a screenshot of WBP_InventoryTab open in the Pause Menu with some test items populated.
+        </div>
+      </article>
+
+      <!-- EQUIPMENT -->
+      <article class="doc-page" id="page-equipment">
+        <h1 class="doc-h1">Equipment Slots</h1>
+        <div class="doc-meta">
+          <span class="badge badge-unreal">Unreal Engine 5.7</span>
+          <span class="badge badge-plan">Planning</span>
+        </div>
+
+        <p class="doc-p">Equipment slots define where an item lives on the character when equipped. The slot enum has one value per attachment point. Only one item can occupy a slot at a time. The <span class="doc-term">ItemManager</span> enforces this.</p>
+
+        <h2 class="doc-h2">Equipment Slot Enum (Planned)</h2>
+        <div class="doc-code">E_EquipSlot:
+  PrimaryWeapon     // right hand weapon
+  SecondaryWeapon   // left hand / shield
+  Head
+  Chest
+  Hands
+  Feet
+  Accessory_1
+  Accessory_2</div>
+
+        <h2 class="doc-h2">How It Works</h2>
+        <ul class="doc-ul">
+          <li>When the player equips an item, <span class="doc-term">ItemManager.EquipItem</span> checks the item's <span class="doc-term">EquipSlot</span> field. If that slot already has something, it unequips that item first (moves it back to the inventory array) before writing the new one.</li>
+          <li><span class="doc-term">OnEquipmentChanged</span> fires after every equip or unequip. The character's mesh component binds to this to attach or detach the item's skeletal mesh at the correct socket.</li>
+          <li>The equipment panel in the UI is a separate widget showing the character silhouette with slot targets. Clicking a slot opens the inventory filtered to items that fit that slot. Same data, different filter.</li>
+        </ul>
+
+        <div class="doc-callout warn">
+          <strong>Dependency:</strong> visual mesh swapping requires sockets set up on the character's Skeletal Mesh. This can be stubbed with placeholder attachment logic (just attach a cube to a socket) and swapped for real meshes later. The data and event flow is independent of the visual result.
+        </div>
+
+        <div class="doc-placeholder">
+          <div class="doc-placeholder-icon">⚔️</div>
+          <div class="doc-placeholder-label">Equipment Panel Screenshot</div>
+          Add screenshot of the equipment slot panel once the UI exists.
+        </div>
+      </article>
+
+      <!-- ROADMAP -->
+      <article class="doc-page" id="page-roadmap">
+        <h1 class="doc-h1">Roadmap</h1>
+        <div class="doc-meta">
+          <span class="badge badge-unreal">Unreal Engine 5.7</span>
+        </div>
+
+        <h2 class="doc-h2">Build Order</h2>
+        <ul class="doc-ul">
+          <li>Item Data Table: define the struct, populate a handful of test rows (a sword, a potion, a key item). Get the import pipeline working from JSON first.</li>
+          <li>ItemManager subsystem: the array, the Map, and the three dispatchers. No UI yet - test by printing to the screen from BeginPlay.</li>
+          <li>BP_ItemPickup: one actor, instance-editable row name. Drop it in the level, walk into it, confirm the item lands in the array via on-screen debug.</li>
+          <li>WBP_InventoryGrid + WBP_InventorySlot: build the grid, wire it to OnItemAdded / OnItemRemoved. Just icons and quantity for now.</li>
+          <li>WBP_ItemDetail: click a slot, see the item's name and description. Add the Equip / Use / Drop buttons.</li>
+          <li>Equipment slots: EquipItem logic, OnEquipmentChanged, stub visual attachment (cube on socket).</li>
+          <li>Equipment panel UI: character silhouette, slot targets, filtered inventory view.</li>
+          <li>Quest System integration: HasItem checks for quest prerequisites, AddItem called from quest completion rewards.</li>
+        </ul>
+
+        <h2 class="doc-h2">Dependency Order</h2>
+        <div class="doc-code">Item Data Table + Struct
+    |
+ItemManager Subsystem
+    |
+BP_ItemPickup         WBP_InventoryGrid
+    |                       |
+    +------- both need ItemManager wired first -------+
+                            |
+                   WBP_ItemDetail
+                            |
+                  Equipment Slot Logic
+                            |
+              Equipment Panel UI + Quest Integration</div>
+
+        <h2 class="doc-h2">What This Unlocks</h2>
+        <ul class="doc-ul">
+          <li>Quest rewards: a quest completion can hand the player an item by calling ItemManager.AddItem. The Quest System and Inventory System stay decoupled.</li>
+          <li>Ally gear: allies recruited via Side Quests can have loadouts driven by the same Data Table.</li>
+          <li>Shop system: a shop is just a UI that reads the item table and calls AddItem / RemoveItem with a currency check in front.</li>
+        </ul>
+      </article>
+
+    </main>
+  </div>
+
+  <!-- FOOTER -->
+  <footer class="wiki-footer">
+    <span class="wiki-footer-logo"><span>OUGA</span>DEV &middot; Docs</span>
+    <span class="wiki-footer-copy">Inventory System (UE5) - draft, not yet published</span>
+  </footer>
+
+  <script>
+    const links   = document.querySelectorAll('.sidebar-link');
+    const pages   = document.querySelectorAll('.doc-page');
+    const sidebar = document.getElementById('wikiSidebar');
+    const ham     = document.getElementById('hamDocs');
+
+    function showPage(id) {
+      pages.forEach(p => p.classList.toggle('active', p.id === `page-${id}`));
+      links.forEach(l => l.classList.toggle('active', l.dataset.page === id));
+      window.scrollTo(0, 0);
+    }
+
+    links.forEach(link => {
+      link.addEventListener('click', () => {
+        showPage(link.dataset.page);
+        sidebar.classList.remove('open');
+        ham.classList.remove('open');
+      });
+    });
+
+    showPage('overview');
+
+    ham.addEventListener('click', () => {
+      ham.classList.toggle('open');
+      sidebar.classList.toggle('open');
+    });
+  </script>
+</body>
+</html>
