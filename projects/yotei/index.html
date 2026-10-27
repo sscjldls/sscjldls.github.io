@@ -130,8 +130,8 @@
     .doc-p { color: var(--muted); font-size: .93rem; line-height: 1.85; margin-bottom: 14px; max-width: 660px; }
     .doc-term { color: var(--violet-l); font-weight: 600; }
     .doc-ul { list-style: none; margin: 10px 0 18px; display: flex; flex-direction: column; gap: 7px; }
-    .doc-ul li { display: flex; align-items: flex-start; gap: 10px; font-size: .91rem; color: var(--muted); line-height: 1.65; }
-    .doc-ul li::before { content: '•'; color: var(--violet); flex-shrink: 0; }
+    .doc-ul li { position: relative; padding-left: 16px; font-size: .91rem; color: var(--muted); line-height: 1.65; }
+    .doc-ul li::before { content: '•'; color: var(--violet); position: absolute; left: 0; top: 0; }
     .doc-callout { background: var(--vglow); border: 1px solid rgba(123,92,240,.28); border-left: 3px solid var(--violet); border-radius: 6px; padding: 13px 17px; margin: 14px 0 20px; font-size: .89rem; color: var(--muted); line-height: 1.75; max-width: 660px; }
     .doc-callout strong { color: var(--text); }
     .doc-callout.warn { background: rgba(245,197,66,.07); border-color: rgba(245,197,66,.3); border-left-color: var(--gold); }
@@ -306,7 +306,7 @@
           <p class="doc-video-caption">Project devlog, overall system demo running in-engine</p>
         </div>
 
-        <h2 class="doc-h2">System Status</h2>
+        <h2 class="doc-h2">What's Done</h2>
         <div class="doc-status-grid">
           <div class="doc-status-item"><div class="doc-status-label">Quest Director</div><div class="doc-status-value done">✓ Done</div></div>
           <div class="doc-status-item"><div class="doc-status-label">Weighted Draw</div><div class="doc-status-value done">✓ Done</div></div>
@@ -355,7 +355,7 @@
           <tr><td><strong style="color:var(--text)">Combat</strong></td><td>Bounties, patrol hunts, arena challenges. Drawn to spike tension or reward aggression.</td></tr>
         </table>
 
-        <h2 class="doc-h2">The Catch-Up Mechanic</h2>
+        <h2 class="doc-h2">How Weights Shift</h2>
         <p class="doc-p">Each region has a difficulty level. The player has a power level. The gap between them drives how category weights are calculated:</p>
         <ul class="doc-ul">
           <li>Player power below region difficulty: Side Quest and Exploration weights rise. The game surfaces quests that give allies, gear, and skills to close the gap.</li>
@@ -367,7 +367,7 @@
           <strong>Design reference:</strong> this is the same philosophy as Left 4 Dead's AI Director, a hidden system that reads the player's state and adjusts the experience accordingly rather than scripting every beat by hand. Ghost of Yotei uses it to surface quests; Left 4 Dead used it to place enemies. The underlying pattern is the same.
         </div>
 
-        <h2 class="doc-h2">Architectural Principles</h2>
+        <h2 class="doc-h2">How It's Built</h2>
         <ul class="doc-ul">
           <li>Every widget subscribes to an Event Dispatcher and only updates when something changes. Nothing reads state in Tick.</li>
           <li><span class="doc-term">BP_YoteiGameInstance</span> is the only place runtime quest state lives. No system caches a copy.</li>
@@ -421,7 +421,7 @@
           </div>
         </div>
 
-        <h2 class="doc-h2">Data Flow Notes</h2>
+        <h2 class="doc-h2">How Data Flows</h2>
         <ul class="doc-ul">
           <li>Triggers never talk to the UI directly. They call <span class="doc-term">DrawAndUnlockQuest</span> on the Quest Director, and everything downstream reacts to the dispatchers the Game Instance broadcasts.</li>
           <li>The Quest UI never polls for state. Every widget binds to <span class="doc-term">OnQuestUnlocked</span> and <span class="doc-term">OnQuestCompleted</span> in Event Construct, so updates arrive as events rather than being requested on a timer.</li>
@@ -485,7 +485,7 @@ Output: DrawnQuest (BP_QuestData ref) or None
           <strong>Why re-roll instead of returning None on an empty pool?</strong> If the player has completed all Side Quests in a region, a Side Quest draw should silently fall through to the next category rather than giving the player nothing. The re-roll loop ensures the game always surfaces something as long as any valid quest exists anywhere in the current region's pool.
         </div>
 
-        <h2 class="doc-h2">Subsystem Variables</h2>
+        <h2 class="doc-h2">What the Subsystem Tracks</h2>
         <table class="doc-table">
           <tr><th>Variable</th><th>Type</th><th>Description</th></tr>
           <tr><td>ActiveQuests</td><td>Array of BP_QuestData</td><td>Quests currently unlocked and visible in the log</td></tr>
@@ -494,7 +494,7 @@ Output: DrawnQuest (BP_QuestData ref) or None
           <tr><td>PlayerPowerLevel</td><td>Integer</td><td>Updated by the progression system. Drives weight computation.</td></tr>
         </table>
 
-        <h2 class="doc-h2">System Demo</h2>
+        <h2 class="doc-h2">Demo</h2>
         <div class="doc-video-wrap">
           <div class="doc-video-frame">
             <video src="../../media/yotei/questSystem.mp4" controls></video>
@@ -564,12 +564,12 @@ Output: DrawnQuest (BP_QuestData ref) or None
         │   └── WBP_QuestEntry bubbles OnEntryClicked
         └── Box 3, WBP_QuestDetail (persistent, updated in place)</div>
 
-        <h2 class="doc-h2">Design Rule: Discovered Only</h2>
+        <h2 class="doc-h2">Discovered Quests Only</h2>
         <div class="doc-callout">
           <strong>Only discovered questlines appear in the log.</strong> Showing "The Kitsune's Trial" before the player has encountered it would spoil that the storyline exists at all. The log builds from <span class="doc-term">GameInstance.ActiveQuests[]</span> and <span class="doc-term">CompletedQuests[]</span>, grouped by the QuestLine field. If you have no quests from a questline, that questline doesn't exist in your log yet.
         </div>
 
-        <h2 class="doc-h2">Update Pattern</h2>
+        <h2 class="doc-h2">How Updates Work</h2>
         <ul class="doc-ul">
           <li>Box 3 holds one persistent <span class="doc-term">WBP_QuestDetail</span> instance, created once in Event Construct and updated in place. It never gets rebuilt.</li>
           <li>Box 1 and Box 2 do get rebuilt on each section/entry click via <span class="doc-term">RefreshQuestList</span> and <span class="doc-term">RefreshEntryList</span>.</li>
@@ -610,7 +610,7 @@ Output: DrawnQuest (BP_QuestData ref) or None
           <strong>Design reference:</strong> Ghost of Yotei's dialogue is fully automated. Lines play on their own, you cannot advance line by line, and the only available input is hold-to-skip the whole conversation. This system matches that exactly.
         </div>
 
-        <h2 class="doc-h2">Auto-Advance Timing</h2>
+        <h2 class="doc-h2">Line Timing</h2>
         <ul class="doc-ul">
           <li>Line duration is <span class="doc-term">MAX(GetSoundDuration(VoiceClip), MinLineDuration)</span>. The minimum guarantees that silent test rows hold long enough to read.</li>
           <li><span class="doc-term">MinLineDuration</span> defaults to 2.5 seconds.</li>
@@ -639,7 +639,7 @@ Output: DrawnQuest (BP_QuestData ref) or None
 
         <p class="doc-p"><span class="doc-term">BP_DialogueCamera</span> is a CineCameraActor subclass repositioned by <span class="doc-term">ActivateDialogueCamera</span> at the start of every conversation. It places itself at the midpoint between the speaker and the player, offset to the side and slightly up, then looks at the midpoint to frame both characters.</p>
 
-        <h2 class="doc-h2">Positioning Logic</h2>
+        <h2 class="doc-h2">Camera Positioning</h2>
         <div class="doc-code">Midpoint = (SpeakerLocation + PlayerLocation) / 2
 Offset   = Midpoint + (RightVector * SideDistance) + (UpVector * HeightOffset)
 Camera → SetActorLocation(Offset)
@@ -667,7 +667,7 @@ Camera → LookAt(Midpoint)</div>
           <span class="badge badge-unreal">Unreal Engine 5.7</span>
         </div>
 
-        <h2 class="doc-h2">Next: To Impress Studios</h2>
+        <h2 class="doc-h2">What's Next</h2>
         <ul class="doc-ul">
           <li>Settler trigger: closest to done. Interaction is wired, just needs the draw hook and dialogue.</li>
           <li>Camp trigger: weighted visitor table, then visitor dialogue, then draw.</li>
@@ -690,7 +690,7 @@ Patrol Trigger           (needs Enemy NPC squad tracking)
     ↓
 Ally Recruitment         (needs Quest completion hook + NPC result)</div>
 
-        <h2 class="doc-h2">Complimentary Systems</h2>
+        <h2 class="doc-h2">Other Systems Needed</h2>
         <ul class="doc-ul">
           <li>Inventory system, prerequisite for different weapons and equipment rewards</li>
           <li>Map system, prerequisite for the Follow Quest tracker marker</li>
