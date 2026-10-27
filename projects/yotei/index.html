@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Yotei Quest System (UE5) — OUGADEV Docs</title>
+  <title>Yotei Quest System (UE5) | OUGADEV Docs</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700;800&family=Outfit:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
@@ -130,7 +130,7 @@
     .doc-term { color: var(--violet-l); font-weight: 600; }
     .doc-ul { list-style: none; margin: 10px 0 18px; display: flex; flex-direction: column; gap: 7px; }
     .doc-ul li { display: flex; align-items: flex-start; gap: 10px; font-size: .91rem; color: var(--muted); line-height: 1.65; }
-    .doc-ul li::before { content: '—'; color: var(--violet); flex-shrink: 0; }
+    .doc-ul li::before { content: '•'; color: var(--violet); flex-shrink: 0; }
     .doc-callout { background: var(--vglow); border: 1px solid rgba(123,92,240,.28); border-left: 3px solid var(--violet); border-radius: 6px; padding: 13px 17px; margin: 14px 0 20px; font-size: .89rem; color: var(--muted); line-height: 1.75; max-width: 660px; }
     .doc-callout strong { color: var(--text); }
     .doc-callout.warn { background: rgba(245,197,66,.07); border-color: rgba(245,197,66,.3); border-left-color: var(--gold); }
@@ -299,7 +299,7 @@
           <div class="doc-video-frame">
             <div class="doc-video-placeholder">
               <span class="doc-video-placeholder-icon">▶</span>
-              <span class="doc-video-placeholder-text">Project devlog — paste YouTube embed ID here</span>
+              <span class="doc-video-placeholder-text">Project devlog - paste YouTube embed ID here</span>
             </div>
           </div>
           <p class="doc-video-caption">Project devlog, overall system demo running in-engine</p>
@@ -313,10 +313,10 @@
           <div class="doc-status-item"><div class="doc-status-label">Dialogue System</div><div class="doc-status-value done">✓ Done</div></div>
           <div class="doc-status-item"><div class="doc-status-label">Two-Shot Camera</div><div class="doc-status-value done">✓ Done</div></div>
           <div class="doc-status-item"><div class="doc-status-label">Settler Trigger</div><div class="doc-status-value wip">⟳ In Dev</div></div>
-          <div class="doc-status-item"><div class="doc-status-label">Camp Trigger</div><div class="doc-status-value todo">— Planned</div></div>
-          <div class="doc-status-item"><div class="doc-status-label">Bounty Board</div><div class="doc-status-value todo">— Planned</div></div>
-          <div class="doc-status-item"><div class="doc-status-label">Patrol Trigger</div><div class="doc-status-value todo">— Planned</div></div>
-          <div class="doc-status-item"><div class="doc-status-label">Ally Recruitment</div><div class="doc-status-value todo">— Planned</div></div>
+          <div class="doc-status-item"><div class="doc-status-label">Camp Trigger</div><div class="doc-status-value todo">Planned</div></div>
+          <div class="doc-status-item"><div class="doc-status-label">Bounty Board</div><div class="doc-status-value todo">Planned</div></div>
+          <div class="doc-status-item"><div class="doc-status-label">Patrol Trigger</div><div class="doc-status-value todo">Planned</div></div>
+          <div class="doc-status-item"><div class="doc-status-label">Ally Recruitment</div><div class="doc-status-value todo">Planned</div></div>
         </div>
 
         <h2 class="doc-h2">In-Engine Screenshots</h2>
@@ -668,12 +668,12 @@ Camera → LookAt(Midpoint)</div>
 
         <h2 class="doc-h2">Next: To Impress Studios</h2>
         <ul class="doc-ul">
-          <li><strong style="color:var(--text)">Settler trigger</strong> — closest to done. Interaction is wired, just needs the draw hook and dialogue.</li>
-          <li><strong style="color:var(--text)">Camp trigger</strong> — weighted visitor table, then visitor dialogue, then draw.</li>
-          <li><strong style="color:var(--text)">Bounty Board</strong> — board actor, interact, draw directly from Combat pool. No dialogue needed.</li>
-          <li><strong style="color:var(--text)">Combat system</strong> — melee core, parry, dodge.</li>
-          <li><strong style="color:var(--text)">Enemy NPC</strong> — patrol AI, squad tracking, interrogation trigger (last enemy calls draw).</li>
-          <li><strong style="color:var(--text)">Ally recruitment</strong> — the payoff the Quest Director was built to deliver. A Side Quest completion hands over an ally, completing the catch-up loop the weighted system promises.</li>
+          <li><strong style="color:var(--text)">Settler trigger</strong>: closest to done. Interaction is wired, just needs the draw hook and dialogue.</li>
+          <li><strong style="color:var(--text)">Camp trigger</strong>: weighted visitor table, then visitor dialogue, then draw.</li>
+          <li><strong style="color:var(--text)">Bounty Board</strong>: board actor, interact, draw directly from Combat pool. No dialogue needed.</li>
+          <li><strong style="color:var(--text)">Combat system</strong>: melee core, parry, dodge.</li>
+          <li><strong style="color:var(--text)">Enemy NPC</strong>: patrol AI, squad tracking, interrogation trigger (last enemy calls draw).</li>
+          <li><strong style="color:var(--text)">Ally recruitment</strong>: the payoff the Quest Director was built to deliver. A Side Quest completion hands over an ally, completing the catch-up loop the weighted system promises.</li>
         </ul>
 
         <h2 class="doc-h2">Dependency Order</h2>
