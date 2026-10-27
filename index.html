@@ -39,7 +39,8 @@
     /* NAV */
     .nav { position: fixed; top: 0; left: 0; right: 0; z-index: 200; padding: 20px 40px; display: flex; align-items: center; justify-content: space-between; transition: background .4s var(--ease), border-color .4s var(--ease); }
     .nav.scrolled { background: rgba(7,7,26,.93); backdrop-filter: blur(18px); border-bottom: 1px solid var(--border); }
-    .nav-logo { font-family: var(--fd); font-weight: 800; font-size: 1.15rem; letter-spacing: -.03em; }
+    .nav-logo { display: flex; align-items: center; gap: 9px; font-family: var(--fd); font-weight: 800; font-size: 1.15rem; letter-spacing: -.03em; }
+    .nav-logo img { height: 28px; width: 28px; object-fit: contain; border-radius: 50%; }
     .nav-logo .sl { color: var(--violet); }
     .nav-right { display: flex; align-items: center; gap: 28px; }
     .nav-links { display: flex; align-items: center; gap: 24px; list-style: none; }
@@ -251,7 +252,7 @@
 
   <!-- NAV -->
   <nav class="nav" id="nav">
-    <a href="#" class="nav-logo"><span class="sl">OUGA</span>DEV</a>
+    <a href="#" class="nav-logo"><img src="media/purpleLogo.png" alt="OUGADEV logo" /><span class="sl">OUGA</span>DEV</a>
     <button class="ham" id="ham" aria-label="Toggle menu">
       <span></span><span></span><span></span>
     </button>

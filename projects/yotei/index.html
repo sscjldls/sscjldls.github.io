@@ -57,6 +57,7 @@
       padding: 0 24px;
     }
     .topbar-left { display: flex; align-items: center; gap: 6px; font-size: .83rem; color: var(--dim); }
+    .topbar-logo { height: 24px; width: 24px; object-fit: contain; border-radius: 50%; margin-right: 2px; opacity: .85; }
     .topbar-crumb { color: var(--dim); transition: color .2s; }
     .topbar-crumb:hover { color: var(--muted); }
     .topbar-crumb.active { color: var(--text); font-weight: 500; }
@@ -223,7 +224,7 @@
   <!-- TOP BAR -->
   <header class="topbar">
     <div class="topbar-left">
-      <a href="../../" class="topbar-crumb">OUGADEV</a>
+      <img src="../../media/purpleLogo.png" alt="" class="topbar-logo" /><a href="../../" class="topbar-crumb">OUGADEV</a>
       <span class="topbar-sep">/</span>
       <a href="../" class="topbar-crumb">Projects</a>
       <span class="topbar-sep">/</span>
