@@ -3,307 +3,150 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Ghost of Yotei (UE5) - OUGADEV Docs</title>
+  <title>Yotei Quest System (UE5) - OUGADEV Docs</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700;800&family=Outfit:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
   <style>
     :root {
-      --bg:        #07071A;
-      --deep:      #0C0C22;
-      --surface:   #12122C;
-      --surface-h: #18183A;
-      --border:    #1C1C3D;
-      --border-l:  #272752;
-      --violet:    #7B5CF0;
-      --violet-l:  #9D7FF5;
-      --vglow:     rgba(123,92,240,.13);
-      --vglow-s:   rgba(123,92,240,.26);
-      --coral:     #FF4F6D;
-      --cglow:     rgba(255,79,109,.13);
-      --gold:      #F5C542;
-      --teal:      #1EC8A3;
-      --text:      #EAEAFF;
-      --muted:     #6B6B9B;
-      --dim:       #37375A;
-      --fd: 'Space Grotesk', sans-serif;
-      --fb: 'Outfit', sans-serif;
-      --fm: 'JetBrains Mono', monospace;
-      --ease: cubic-bezier(.4,0,.2,1);
-      --r: 10px;
-      --sidebar: 256px;
+      --bg:#07071A;--deep:#0C0C22;--surface:#12122C;--surface-h:#18183A;
+      --border:#1C1C3D;--border-l:#272752;
+      --violet:#7B5CF0;--violet-l:#9D7FF5;
+      --vglow:rgba(123,92,240,.13);--vglow-s:rgba(123,92,240,.26);
+      --coral:#FF4F6D;--cglow:rgba(255,79,109,.13);
+      --gold:#F5C542;--teal:#1EC8A3;
+      --text:#EAEAFF;--muted:#6B6B9B;--dim:#37375A;
+      --fd:'Space Grotesk',sans-serif;--fb:'Outfit',sans-serif;
+      --fm:'JetBrains Mono',monospace;
+      --ease:cubic-bezier(.4,0,.2,1);--r:10px;--sidebar:256px;
     }
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+    html{scroll-behavior:smooth;}
+    body{background:var(--bg);color:var(--text);font-family:var(--fb);font-size:15px;line-height:1.65;overflow-x:hidden;}
+    h1,h2,h3,h4{font-family:var(--fd);line-height:1.15;}
+    a{color:inherit;text-decoration:none;}
+    img{display:block;max-width:100%;}
+    button{cursor:pointer;font-family:var(--fb);border:none;background:none;}
+    ::-webkit-scrollbar{width:4px;}
+    ::-webkit-scrollbar-track{background:var(--bg);}
+    ::-webkit-scrollbar-thumb{background:var(--border-l);border-radius:3px;}
+    ::-webkit-scrollbar-thumb:hover{background:var(--violet);}
+    ::selection{background:var(--vglow-s);color:var(--text);}
 
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    html { scroll-behavior: smooth; }
-    body { background: var(--bg); color: var(--text); font-family: var(--fb); font-size: 15px; line-height: 1.65; overflow-x: hidden; }
-    h1,h2,h3,h4 { font-family: var(--fd); line-height: 1.15; }
-    a { color: inherit; text-decoration: none; }
-    img { display: block; max-width: 100%; }
-    button { cursor: pointer; font-family: var(--fb); border: none; background: none; }
-    ::-webkit-scrollbar { width: 4px; }
-    ::-webkit-scrollbar-track { background: var(--bg); }
-    ::-webkit-scrollbar-thumb { background: var(--border-l); border-radius: 3px; }
-    ::-webkit-scrollbar-thumb:hover { background: var(--violet); }
-    ::selection { background: var(--vglow-s); color: var(--text); }
+    /* TOP BAR */
+    .topbar{position:fixed;top:0;left:0;right:0;z-index:200;height:52px;background:rgba(7,7,26,.95);backdrop-filter:blur(16px);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 24px;}
+    .topbar-left{display:flex;align-items:center;gap:6px;font-size:.83rem;color:var(--dim);}
+    .topbar-crumb{color:var(--dim);transition:color .2s;}
+    .topbar-crumb:hover{color:var(--muted);}
+    .topbar-crumb.active{color:var(--text);font-weight:500;}
+    .topbar-sep{opacity:.4;}
+    .topbar-right{display:flex;align-items:center;gap:14px;}
+    .topbar-badge{font-size:.68rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;padding:3px 10px;border-radius:4px;}
+    .badge-unreal{color:var(--teal);background:rgba(30,200,163,.1);border:1px solid rgba(30,200,163,.25);}
+    .badge-wip{color:var(--gold);background:rgba(245,197,66,.1);border:1px solid rgba(245,197,66,.25);}
+    .badge-done{color:var(--teal);background:rgba(30,200,163,.1);border:1px solid rgba(30,200,163,.25);}
+    .topbar-back{display:inline-flex;align-items:center;gap:6px;font-size:.8rem;font-weight:600;color:var(--muted);padding:6px 14px;border-radius:6px;border:1px solid var(--border);transition:all .22s var(--ease);}
+    .topbar-back:hover{border-color:var(--violet);color:var(--violet);}
+    .ham-docs{display:none;flex-direction:column;gap:4px;padding:4px;color:var(--muted);}
+    .ham-docs span{display:block;width:18px;height:1.5px;background:currentColor;border-radius:2px;transition:all .28s var(--ease);}
+    .ham-docs.open span:nth-child(1){transform:translateY(5.5px) rotate(45deg);}
+    .ham-docs.open span:nth-child(2){opacity:0;}
+    .ham-docs.open span:nth-child(3){transform:translateY(-5.5px) rotate(-45deg);}
 
-    /* ─── TOP BAR ─────────────────────────────────────────── */
-    .topbar {
-      position: fixed; top: 0; left: 0; right: 0; z-index: 200;
-      height: 52px;
-      background: rgba(7,7,26,.95);
-      backdrop-filter: blur(16px);
-      border-bottom: 1px solid var(--border);
-      display: flex; align-items: center; justify-content: space-between;
-      padding: 0 24px;
-    }
-    .topbar-left { display: flex; align-items: center; gap: 6px; font-size: .83rem; color: var(--dim); }
-    .topbar-crumb { color: var(--dim); transition: color .2s; }
-    .topbar-crumb:hover { color: var(--muted); }
-    .topbar-crumb.active { color: var(--text); font-weight: 500; }
-    .topbar-sep { opacity: .4; }
-    .topbar-right { display: flex; align-items: center; gap: 14px; }
-    .topbar-badge { font-size: .68rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; padding: 3px 10px; border-radius: 4px; }
-    .badge-unreal { color: var(--teal); background: rgba(30,200,163,.1); border: 1px solid rgba(30,200,163,.25); }
-    .badge-wip    { color: var(--gold); background: rgba(245,197,66,.1); border: 1px solid rgba(245,197,66,.25); }
-    .badge-done   { color: var(--teal); background: rgba(30,200,163,.1); border: 1px solid rgba(30,200,163,.25); }
-    .topbar-back {
-      display: inline-flex; align-items: center; gap: 6px;
-      font-size: .8rem; font-weight: 600; color: var(--muted);
-      padding: 6px 14px; border-radius: 6px;
-      border: 1px solid var(--border); transition: all .22s var(--ease);
-    }
-    .topbar-back:hover { border-color: var(--violet); color: var(--violet); }
-    .ham-docs { display: none; flex-direction: column; gap: 4px; padding: 4px; color: var(--muted); }
-    .ham-docs span { display: block; width: 18px; height: 1.5px; background: currentColor; border-radius: 2px; transition: all .28s var(--ease); }
-    .ham-docs.open span:nth-child(1) { transform: translateY(5.5px) rotate(45deg); }
-    .ham-docs.open span:nth-child(2) { opacity: 0; }
-    .ham-docs.open span:nth-child(3) { transform: translateY(-5.5px) rotate(-45deg); }
+    /* PROJECT HERO */
+    .proj-hero{margin-top:52px;padding:56px 40px 40px;background:var(--deep);border-bottom:1px solid var(--border);position:relative;overflow:hidden;}
+    .proj-hero-aura{position:absolute;inset:0;pointer-events:none;background:radial-gradient(ellipse 60% 100% at 10% 50%,rgba(123,92,240,.07) 0%,transparent 60%),radial-gradient(ellipse 40% 100% at 90% 50%,rgba(30,200,163,.05) 0%,transparent 60%);}
+    .proj-hero-inner{max-width:900px;position:relative;}
+    .proj-hero-eye{font-size:.7rem;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--violet);margin-bottom:10px;}
+    .proj-hero-title{font-family:var(--fd);font-size:clamp(1.8rem,4vw,2.8rem);font-weight:800;letter-spacing:-.04em;color:var(--text);margin-bottom:10px;}
+    .proj-hero-desc{color:var(--muted);font-size:.97rem;max-width:580px;line-height:1.8;margin-bottom:18px;}
+    .proj-hero-meta{display:flex;gap:8px;flex-wrap:wrap;}
 
-    /* ─── PROJECT HERO ────────────────────────────────────── */
-    .proj-hero {
-      margin-top: 52px;
-      padding: 56px 40px 40px;
-      background: var(--deep);
-      border-bottom: 1px solid var(--border);
-      position: relative; overflow: hidden;
-    }
-    .proj-hero-aura {
-      position: absolute; inset: 0; pointer-events: none;
-      background:
-        radial-gradient(ellipse 60% 100% at 10% 50%, rgba(123,92,240,.07) 0%, transparent 60%),
-        radial-gradient(ellipse 40% 100% at 90% 50%, rgba(30,200,163,.05) 0%, transparent 60%);
-    }
-    .proj-hero-inner { max-width: 900px; position: relative; }
-    .proj-hero-eye { font-size: .7rem; font-weight: 700; letter-spacing: .18em; text-transform: uppercase; color: var(--violet); margin-bottom: 10px; }
-    .proj-hero-title { font-family: var(--fd); font-size: clamp(1.8rem,4vw,2.8rem); font-weight: 800; letter-spacing: -.04em; color: var(--text); margin-bottom: 10px; }
-    .proj-hero-desc { color: var(--muted); font-size: .97rem; max-width: 580px; line-height: 1.8; margin-bottom: 18px; }
-    .proj-hero-meta { display: flex; gap: 8px; flex-wrap: wrap; }
+    /* LAYOUT */
+    .wiki-layout{display:grid;grid-template-columns:var(--sidebar) 1fr;min-height:calc(100vh - 52px);}
 
-    /* ─── LAYOUT ──────────────────────────────────────────── */
-    .wiki-layout {
-      display: grid;
-      grid-template-columns: var(--sidebar) 1fr;
-      min-height: calc(100vh - 52px);
-    }
+    /* SIDEBAR */
+    .wiki-sidebar{border-right:1px solid var(--border);background:var(--deep);position:sticky;top:52px;height:calc(100vh - 52px);overflow-y:auto;overflow-x:hidden;padding:18px 0 40px;}
+    .wiki-sidebar::-webkit-scrollbar{width:3px;}
+    .sidebar-section-label{font-size:.65rem;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--dim);padding:14px 18px 6px;}
+    .sidebar-link{display:flex;align-items:center;gap:10px;width:100%;text-align:left;padding:8px 18px;font-size:.84rem;color:var(--muted);transition:color .18s,background .18s;border-left:2px solid transparent;}
+    .sidebar-link:hover{color:var(--text);background:rgba(123,92,240,.05);}
+    .sidebar-link.active{color:var(--violet);background:var(--vglow);border-left-color:var(--violet);}
+    .sidebar-link-icon{font-size:.9rem;flex-shrink:0;width:18px;text-align:center;}
+    .sidebar-divider{height:1px;background:var(--border);margin:10px 18px;}
 
-    /* ─── SIDEBAR ─────────────────────────────────────────── */
-    .wiki-sidebar {
-      border-right: 1px solid var(--border);
-      background: var(--deep);
-      position: sticky;
-      top: 52px;
-      height: calc(100vh - 52px);
-      overflow-y: auto;
-      overflow-x: hidden;
-      padding: 18px 0 40px;
-    }
-    .wiki-sidebar::-webkit-scrollbar { width: 3px; }
+    /* CONTENT */
+    .wiki-content{padding:44px 56px 100px;max-width:860px;}
+    .doc-page{display:none;}
+    .doc-page.active{display:block;}
 
-    .sidebar-section-label {
-      font-size: .65rem; font-weight: 700; letter-spacing: .16em;
-      text-transform: uppercase; color: var(--dim);
-      padding: 14px 18px 6px;
-    }
-    .sidebar-link {
-      display: flex; align-items: center; gap: 10px;
-      width: 100%; text-align: left;
-      padding: 8px 18px;
-      font-size: .84rem; color: var(--muted);
-      transition: color .18s, background .18s;
-      border-left: 2px solid transparent;
-    }
-    .sidebar-link:hover { color: var(--text); background: rgba(123,92,240,.05); }
-    .sidebar-link.active {
-      color: var(--violet);
-      background: var(--vglow);
-      border-left-color: var(--violet);
-    }
-    .sidebar-link-icon { font-size: .9rem; flex-shrink: 0; width: 18px; text-align: center; }
-    .sidebar-divider { height: 1px; background: var(--border); margin: 10px 18px; }
+    /* TYPOGRAPHY */
+    .doc-h1{font-family:var(--fd);font-size:1.9rem;font-weight:800;letter-spacing:-.04em;color:var(--text);margin-bottom:8px;}
+    .doc-meta{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:28px;padding-bottom:22px;border-bottom:1px solid var(--border);}
+    .doc-h2{font-family:var(--fd);font-size:1.2rem;font-weight:700;letter-spacing:-.025em;color:var(--text);margin:38px 0 12px;padding-bottom:8px;border-bottom:1px solid var(--border);}
+    .doc-h3{font-family:var(--fd);font-size:.97rem;font-weight:700;color:var(--violet-l);margin:20px 0 8px;}
+    .doc-p{color:var(--muted);font-size:.93rem;line-height:1.85;margin-bottom:14px;max-width:660px;}
+    .doc-code{font-family:var(--fm);font-size:.78rem;background:var(--deep);border:1px solid var(--border);border-radius:7px;padding:14px 18px;color:#C8C0FF;overflow-x:auto;margin:10px 0 18px;white-space:pre;line-height:1.7;}
+    .doc-inline{font-family:var(--fm);font-size:.8em;background:var(--deep);border:1px solid var(--border);padding:1px 6px;border-radius:4px;color:#C8C0FF;}
+    .doc-ul{list-style:none;margin:10px 0 18px;display:flex;flex-direction:column;gap:7px;}
+    .doc-ul li{display:flex;align-items:flex-start;gap:10px;font-size:.91rem;color:var(--muted);line-height:1.65;}
+    .doc-ul li::before{content:'-';color:var(--violet);flex-shrink:0;}
+    .doc-callout{background:var(--vglow);border:1px solid rgba(123,92,240,.28);border-left:3px solid var(--violet);border-radius:6px;padding:13px 17px;margin:14px 0 20px;font-size:.89rem;color:var(--muted);line-height:1.75;max-width:660px;}
+    .doc-callout strong{color:var(--text);}
+    .doc-callout.warn{background:rgba(245,197,66,.07);border-color:rgba(245,197,66,.3);border-left-color:var(--gold);}
+    .doc-callout.warn strong{color:var(--gold);}
+    .doc-table{width:100%;border-collapse:collapse;margin:12px 0 22px;font-size:.86rem;}
+    .doc-table th{text-align:left;padding:8px 13px;background:var(--surface);border:1px solid var(--border);color:var(--muted);font-weight:600;font-size:.75rem;letter-spacing:.04em;}
+    .doc-table td{padding:8px 13px;border:1px solid var(--border);color:var(--muted);vertical-align:top;line-height:1.55;}
+    .doc-table tr:hover td{background:var(--surface);}
 
-    /* ─── CONTENT ─────────────────────────────────────────── */
-    .wiki-content { padding: 44px 56px 100px; max-width: 860px; }
+    /* STATUS GRID */
+    .doc-status-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:10px;margin:14px 0 24px;}
+    .doc-status-item{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:12px 14px;}
+    .doc-status-label{font-size:.73rem;color:var(--dim);font-weight:500;margin-bottom:4px;}
+    .doc-status-value{font-family:var(--fd);font-size:.9rem;font-weight:700;color:var(--text);}
+    .done{color:var(--teal) !important;}
+    .wip{color:var(--gold) !important;}
+    .todo{color:var(--dim) !important;}
 
-    .doc-page { display: none; }
-    .doc-page.active { display: block; }
+    /* IMAGES */
+    .doc-img-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:14px;margin:16px 0 26px;}
+    .doc-img-grid.single{grid-template-columns:1fr;max-width:660px;}
+    .doc-img-grid.two{grid-template-columns:1fr 1fr;}
+    .doc-img-slot{border-radius:8px;overflow:hidden;border:1px solid var(--border);background:var(--surface);}
+    .doc-img-wrap{width:100%;aspect-ratio:16/9;background:var(--deep);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;position:relative;overflow:hidden;}
+    .doc-img-wrap img,.doc-img-wrap video{width:100%;height:100%;object-fit:cover;display:block;}
+    .doc-img-wrap:not(:has(img)):not(:has(video)){border:1.5px dashed var(--border-l);border-radius:7px;}
+    .doc-img-wrap:not(:has(img)):not(:has(video))::before{content:'📷';font-size:1.8rem;opacity:.4;}
+    .doc-img-wrap:not(:has(img)):not(:has(video))::after{content:attr(data-slot);font-size:.73rem;color:var(--dim);letter-spacing:.04em;text-align:center;padding:0 16px;}
+    .doc-img-caption{display:block;font-size:.75rem;color:var(--dim);padding:8px 12px;line-height:1.5;border-top:1px solid var(--border);}
 
-    /* typography */
-    .doc-h1 { font-family: var(--fd); font-size: 1.9rem; font-weight: 800; letter-spacing: -.04em; color: var(--text); margin-bottom: 8px; }
-    .doc-meta { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 28px; padding-bottom: 22px; border-bottom: 1px solid var(--border); }
-    .doc-h2 { font-family: var(--fd); font-size: 1.2rem; font-weight: 700; letter-spacing: -.025em; color: var(--text); margin: 38px 0 12px; padding-bottom: 8px; border-bottom: 1px solid var(--border); }
-    .doc-h3 { font-family: var(--fd); font-size: .97rem; font-weight: 700; color: var(--violet-l); margin: 20px 0 8px; }
-    .doc-p { color: var(--muted); font-size: .93rem; line-height: 1.85; margin-bottom: 14px; max-width: 660px; }
-    .doc-code { font-family: var(--fm); font-size: .78rem; background: var(--deep); border: 1px solid var(--border); border-radius: 7px; padding: 14px 18px; color: #C8C0FF; overflow-x: auto; margin: 10px 0 18px; white-space: pre; line-height: 1.7; }
-    .doc-inline { font-family: var(--fm); font-size: .8em; background: var(--deep); border: 1px solid var(--border); padding: 1px 6px; border-radius: 4px; color: #C8C0FF; }
-    .doc-ul { list-style: none; margin: 10px 0 18px; display: flex; flex-direction: column; gap: 7px; }
-    .doc-ul li { display: flex; align-items: flex-start; gap: 10px; font-size: .91rem; color: var(--muted); line-height: 1.65; }
-    .doc-ul li::before { content: '—'; color: var(--violet); flex-shrink: 0; }
-    .doc-callout { background: var(--vglow); border: 1px solid rgba(123,92,240,.28); border-left: 3px solid var(--violet); border-radius: 6px; padding: 13px 17px; margin: 14px 0 20px; font-size: .89rem; color: var(--muted); line-height: 1.75; max-width: 660px; }
-    .doc-callout strong { color: var(--text); }
-    .doc-callout.warn { background: rgba(245,197,66,.07); border-color: rgba(245,197,66,.3); border-left-color: var(--gold); }
-    .doc-callout.warn strong { color: var(--gold); }
-    .doc-table { width: 100%; border-collapse: collapse; margin: 12px 0 22px; font-size: .86rem; }
-    .doc-table th { text-align: left; padding: 8px 13px; background: var(--surface); border: 1px solid var(--border); color: var(--muted); font-weight: 600; font-size: .75rem; letter-spacing: .04em; }
-    .doc-table td { padding: 8px 13px; border: 1px solid var(--border); color: var(--muted); vertical-align: top; line-height: 1.55; }
-    .doc-table tr:hover td { background: var(--surface); }
+    /* VIDEO */
+    .doc-video-wrap{margin:16px 0 26px;max-width:660px;}
+    .doc-video-frame{width:100%;aspect-ratio:16/9;border-radius:8px;overflow:hidden;border:1px solid var(--border);background:var(--deep);position:relative;}
+    .doc-video-frame iframe,.doc-video-frame video{width:100%;height:100%;display:block;border:none;}
+    .doc-video-placeholder{width:100%;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;border:1.5px dashed var(--border-l);border-radius:8px;}
+    .doc-video-placeholder-icon{font-size:2rem;opacity:.35;}
+    .doc-video-placeholder-text{font-size:.75rem;color:var(--dim);letter-spacing:.04em;}
+    .doc-video-caption{font-size:.75rem;color:var(--dim);margin-top:8px;line-height:1.5;}
 
-    /* status grid */
-    .doc-status-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 10px; margin: 14px 0 24px; }
-    .doc-status-item { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 12px 14px; }
-    .doc-status-label { font-size: .73rem; color: var(--dim); font-weight: 500; margin-bottom: 4px; }
-    .doc-status-value { font-family: var(--fd); font-size: .9rem; font-weight: 700; color: var(--text); }
-    .done { color: var(--teal) !important; }
-    .wip  { color: var(--gold) !important; }
-    .todo { color: var(--dim) !important; }
+    /* FOOTER */
+    .wiki-footer{background:var(--deep);border-top:1px solid var(--border);padding:28px 40px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:14px;}
+    .wiki-footer-logo{font-family:var(--fd);font-weight:800;font-size:1rem;letter-spacing:-.025em;color:var(--dim);}
+    .wiki-footer-logo span{color:var(--violet);}
+    .wiki-footer-copy{font-size:.75rem;color:var(--dim);}
 
-    /* ─── MEDIA: IMAGES ───────────────────────────────────── */
-    .doc-img-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-      gap: 14px;
-      margin: 16px 0 26px;
-    }
-    .doc-img-grid.single { grid-template-columns: 1fr; max-width: 660px; }
-    .doc-img-grid.two    { grid-template-columns: 1fr 1fr; }
-
-    .doc-img-slot {
-      border-radius: 8px;
-      overflow: hidden;
-      border: 1px solid var(--border);
-      background: var(--surface);
-    }
-    .doc-img-wrap {
-      width: 100%;
-      aspect-ratio: 16/9;
-      background: var(--deep);
-      display: flex; flex-direction: column;
-      align-items: center; justify-content: center;
-      gap: 8px;
-      position: relative; overflow: hidden;
-    }
-    .doc-img-wrap img {
-      width: 100%; height: 100%;
-      object-fit: cover;
-      display: block;
-    }
-    .doc-img-wrap video {
-      width: 100%; height: 100%;
-      object-fit: cover;
-      display: block;
-    }
-    /* placeholder state - shown when no img or video child */
-    .doc-img-wrap:not(:has(img)):not(:has(video)) {
-      border: 1.5px dashed var(--border-l);
-      border-radius: 7px;
-    }
-    .doc-img-wrap:not(:has(img)):not(:has(video))::before {
-      content: '📷';
-      font-size: 1.8rem;
-      opacity: .4;
-    }
-    .doc-img-wrap:not(:has(img)):not(:has(video))::after {
-      content: attr(data-slot);
-      font-size: .73rem;
-      color: var(--dim);
-      letter-spacing: .04em;
-      text-align: center;
-      padding: 0 16px;
-    }
-    .doc-img-caption {
-      display: block;
-      font-size: .75rem;
-      color: var(--dim);
-      padding: 8px 12px;
-      line-height: 1.5;
-      border-top: 1px solid var(--border);
-    }
-
-    /* ─── MEDIA: VIDEO ────────────────────────────────────── */
-    .doc-video-wrap {
-      margin: 16px 0 26px;
-      max-width: 660px;
-    }
-    .doc-video-frame {
-      width: 100%;
-      aspect-ratio: 16/9;
-      border-radius: 8px;
-      overflow: hidden;
-      border: 1px solid var(--border);
-      background: var(--deep);
-      position: relative;
-    }
-    .doc-video-frame iframe {
-      width: 100%; height: 100%;
-      display: block;
-      border: none;
-    }
-    .doc-video-frame video {
-      width: 100%; height: 100%;
-      display: block;
-    }
-    /* placeholder when no iframe / video_id not set */
-    .doc-video-placeholder {
-      width: 100%; height: 100%;
-      display: flex; flex-direction: column;
-      align-items: center; justify-content: center;
-      gap: 10px;
-      border: 1.5px dashed var(--border-l);
-      border-radius: 8px;
-    }
-    .doc-video-placeholder-icon { font-size: 2rem; opacity: .35; }
-    .doc-video-placeholder-text { font-size: .75rem; color: var(--dim); letter-spacing: .04em; }
-    .doc-video-caption { font-size: .75rem; color: var(--dim); margin-top: 8px; line-height: 1.5; }
-
-    /* ─── FOOTER ──────────────────────────────────────────── */
-    .wiki-footer {
-      background: var(--deep);
-      border-top: 1px solid var(--border);
-      padding: 28px 40px;
-      display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 14px;
-    }
-    .wiki-footer-logo { font-family: var(--fd); font-weight: 800; font-size: 1rem; letter-spacing: -.025em; color: var(--dim); }
-    .wiki-footer-logo span { color: var(--violet); }
-    .wiki-footer-copy { font-size: .75rem; color: var(--dim); }
-
-    /* ─── MOBILE ──────────────────────────────────────────── */
-    @media (max-width: 800px) {
-      .topbar { padding: 0 16px; }
-      .topbar-badges { display: none; }
-      .ham-docs { display: flex; }
-      .proj-hero { padding: 44px 20px 30px; }
-      .wiki-layout { grid-template-columns: 1fr; }
-      .wiki-sidebar {
-        position: fixed; top: 52px; left: 0; bottom: 0;
-        width: var(--sidebar); z-index: 100;
-        transform: translateX(-100%);
-        transition: transform .3s var(--ease);
-        border-right: 1px solid var(--border-l);
-        box-shadow: 6px 0 30px rgba(0,0,0,.4);
-      }
-      .wiki-sidebar.open { transform: translateX(0); }
-      .wiki-content { padding: 30px 20px 80px; }
-      .doc-img-grid.two { grid-template-columns: 1fr; }
+    /* MOBILE */
+    @media (max-width:800px){
+      .topbar{padding:0 16px;}
+      .topbar-badges{display:none;}
+      .ham-docs{display:flex;}
+      .proj-hero{padding:44px 20px 30px;}
+      .wiki-layout{grid-template-columns:1fr;}
+      .wiki-sidebar{position:fixed;top:52px;left:0;bottom:0;width:var(--sidebar);z-index:100;transform:translateX(-100%);transition:transform .3s var(--ease);border-right:1px solid var(--border-l);box-shadow:6px 0 30px rgba(0,0,0,.4);}
+      .wiki-sidebar.open{transform:translateX(0);}
+      .wiki-content{padding:30px 20px 80px;}
+      .doc-img-grid.two{grid-template-columns:1fr;}
     }
   </style>
 </head>
@@ -316,11 +159,11 @@
       <span class="topbar-sep">/</span>
       <a href="../index.html" class="topbar-crumb">Projects</a>
       <span class="topbar-sep">/</span>
-      <span class="topbar-crumb active">Ghost of Yotei</span>
+      <span class="topbar-crumb active">Yotei's Quest System</span>
     </div>
     <div class="topbar-right">
       <span class="topbar-badge badge-unreal topbar-badges">Unreal Engine 5.7</span>
-      <span class="topbar-badge badge-wip topbar-badges">In Dev</span>
+      <span class="topbar-badge badge-wip topbar-badges">In Progress</span>
       <a href="../../index.html" class="topbar-back">← Back to Portfolio</a>
       <button class="ham-docs" id="hamDocs" aria-label="Toggle sidebar">
         <span></span><span></span><span></span>
@@ -333,8 +176,8 @@
     <div class="proj-hero-aura"></div>
     <div class="proj-hero-inner">
       <p class="proj-hero-eye">Project Documentation</p>
-      <h1 class="proj-hero-title">Ghost of Yōtei (UE5)</h1>
-      <p class="proj-hero-desc">A third-person open-world action game built in Unreal Engine 5, inspired by Ghost of Tsushima / Yōtei. Blueprint-only, studio-pattern systems - designed as both a portfolio piece and a public tutorial series.</p>
+      <h1 class="proj-hero-title">Yōtei's Quest System (UE5)</h1>
+      <p class="proj-hero-desc">A quest system built in Unreal Engine 5, inspired by Ghost of Tsushima / Yōtei. Blueprint-only, studio-pattern systems - designed as both a portfolio piece and a public tutorial series.</p>
       <div class="proj-hero-meta">
         <span class="topbar-badge badge-unreal">Unreal Engine 5.7</span>
         <span class="topbar-badge badge-wip">In Progress</span>
@@ -375,23 +218,18 @@
     <!-- CONTENT -->
     <main class="wiki-content" id="wikiContent">
 
-      <!-- ══ OVERVIEW ══ -->
+      <!-- OVERVIEW -->
       <article class="doc-page" id="page-overview">
         <h1 class="doc-h1">Overview</h1>
         <div class="doc-meta">
           <span class="topbar-badge badge-unreal">Unreal Engine 5.7</span>
-          <span class="topbar-badge badge-wip">In Development</span>
+          <span class="topbar-badge badge-wip">In Progress</span>
         </div>
+        <p class="doc-p">A quest system built in Unreal Engine 5, inspired by Ghost of Tsushima / Ghost of Yōtei. All systems are Blueprint-only to keep the accompanying tutorial series accessible, while still following real production patterns used in shipped titles.</p>
 
-        <p class="doc-p">A third-person open-world action game in UE5, inspired by Ghost of Tsushima / Ghost of Yōtei. All systems are Blueprint-only to keep the accompanying tutorial series accessible, while still following real production patterns used in shipped titles.</p>
-
-        <!-- PROJECT SCREENSHOT -->
         <div class="doc-img-grid single">
           <figure class="doc-img-slot">
             <div class="doc-img-wrap" data-slot="Project overview screenshot">
-              <!-- Drop your screenshot here:
-              <img src="../../media/goy/overview.png" alt="Ghost of Yotei overview" />
-              -->
             </div>
             <span class="doc-img-caption">Project overview - replace with a screenshot of the current in-editor state</span>
           </figure>
@@ -413,9 +251,6 @@
         <h2 class="doc-h2">Devlog Video</h2>
         <div class="doc-video-wrap">
           <div class="doc-video-frame">
-            <!-- Paste a YouTube embed once you have a devlog:
-            <iframe src="https://www.youtube.com/embed/YOUR_VIDEO_ID" title="GoY UE5 Devlog" allowfullscreen></iframe>
-            -->
             <div class="doc-video-placeholder">
               <span class="doc-video-placeholder-icon">▶</span>
               <span class="doc-video-placeholder-text">Devlog video - paste your YouTube embed ID here</span>
@@ -442,7 +277,7 @@
     └── Test/           BP_TestInteractable, BP_TestNPC</div>
       </article>
 
-      <!-- ══ TECH STACK ══ -->
+      <!-- TECH STACK -->
       <article class="doc-page" id="page-tech-stack">
         <h1 class="doc-h1">Tech Stack</h1>
         <div class="doc-meta">
@@ -469,7 +304,7 @@
         </ul>
       </article>
 
-      <!-- ══ FOUNDATION ══ -->
+      <!-- FOUNDATION -->
       <article class="doc-page" id="page-foundation">
         <h1 class="doc-h1">Foundation</h1>
         <div class="doc-meta">
@@ -477,10 +312,8 @@
           <span class="topbar-badge badge-done">Done</span>
         </div>
         <p class="doc-p">The bootstrapping layer every other system depends on. UE5 requires an explicit chain that Unity handles implicitly - this is the piece with no Unity equivalent.</p>
+        <div class="doc-callout"><strong>Bootstrap chain:</strong> BP_YoteiGameMode sets Default Pawn Class = BP_PlayerCharacter and Player Controller Class = BP_PlayerController. Assigned in Level World Settings. Without this, nothing spawns and no input binds.</div>
 
-        <div class="doc-callout"><strong>Bootstrap chain:</strong> BP_YoteiGameMode → sets Default Pawn Class = BP_PlayerCharacter and Player Controller Class = BP_PlayerController. Assigned in Level World Settings. Without this, nothing spawns and no input binds.</div>
-
-        <!-- Screenshots -->
         <div class="doc-img-grid two">
           <figure class="doc-img-slot">
             <div class="doc-img-wrap" data-slot="GameMode setup screenshot">
@@ -509,7 +342,7 @@
         </table>
       </article>
 
-      <!-- ══ HEALTH ══ -->
+      <!-- HEALTH -->
       <article class="doc-page" id="page-health">
         <h1 class="doc-h1">Health System</h1>
         <div class="doc-meta">
@@ -533,7 +366,6 @@
           <li><span class="doc-inline">OnDeath</span> - fires once when CurrentHealth reaches 0; bIsDead guard blocks all subsequent calls</li>
         </ul>
 
-        <!-- Health bar screenshot -->
         <div class="doc-img-grid single">
           <figure class="doc-img-slot">
             <div class="doc-img-wrap" data-slot="WBP_HealthBar in game">
@@ -546,7 +378,7 @@
         <div class="doc-callout"><strong>Why dispatchers, not direct calls:</strong> WBP_HealthBar and the debug print logger both subscribe to OnDamaged independently. Neither knows the other exists - and neither knows about BP_HealthComponent's internals. Adding a third listener (damage popups, screen effects) costs zero changes to the component itself.</div>
       </article>
 
-      <!-- ══ INTERACTION ══ -->
+      <!-- INTERACTION -->
       <article class="doc-page" id="page-interaction">
         <h1 class="doc-h1">Interaction System</h1>
         <div class="doc-meta">
@@ -563,7 +395,6 @@
           <tr><td><span class="doc-inline">BP_TestInteractable</span></td><td>Placeholder actor implementing BPI_Interactable for end-to-end testing.</td></tr>
         </table>
 
-        <!-- Two screenshots side by side -->
         <div class="doc-img-grid two">
           <figure class="doc-img-slot">
             <div class="doc-img-wrap" data-slot="Interaction prompt video">
@@ -582,7 +413,7 @@
         <div class="doc-callout warn"><strong>Typing rule:</strong> casting down to a specific type always needs an explicit Cast node, even when you know the object implements the interface. Blueprint can't guarantee type at compile time - this explains every type-mismatch fix in this system.</div>
       </article>
 
-      <!-- ══ QUEST DIRECTOR ══ -->
+      <!-- QUEST DIRECTOR -->
       <article class="doc-page" id="page-quest-director">
         <h1 class="doc-h1">Quest Director</h1>
         <div class="doc-meta">
@@ -631,7 +462,6 @@ Output: DrawnQuest (BP_QuestData ref) or None
 4. IF all categories exhausted → RETURN None
    (trigger handles gracefully - idle chatter, empty board, etc.)</div>
 
-        <!-- Devlog / demo video -->
         <h2 class="doc-h2">System Demo</h2>
         <div class="doc-video-wrap">
           <div class="doc-video-frame">
@@ -650,7 +480,7 @@ Output: DrawnQuest (BP_QuestData ref) or None
         </table>
       </article>
 
-      <!-- ══ QUEST UI ══ -->
+      <!-- QUEST UI -->
       <article class="doc-page" id="page-quest-ui">
         <h1 class="doc-h1">Quest UI</h1>
         <div class="doc-meta">
@@ -659,7 +489,6 @@ Output: DrawnQuest (BP_QuestData ref) or None
         </div>
         <p class="doc-p">The Quest Log lives inside the Pause Menu and uses a three-box layout: questline sections (Box 1), quest entries for the selected section (Box 2), and a detail panel for the selected entry (Box 3).</p>
 
-        <!-- Full quest UI screenshot -->
         <div class="doc-img-grid single">
           <figure class="doc-img-slot">
             <div class="doc-img-wrap" data-slot="Quest Log full screenshot">
@@ -682,7 +511,6 @@ Output: DrawnQuest (BP_QuestData ref) or None
         <h2 class="doc-h2">Design Rule - Discovered Only</h2>
         <div class="doc-callout"><strong>Only discovered questlines appear in the log</strong> - matching Ghost of Tsushima / Yōtei's own Tales list. Showing "The Kitsune" before you've encountered it would spoil that the storyline exists at all. The log builds from BP_YoteiGameInstance's ActiveQuests and CompletedQuests arrays, grouped by QuestLine field.</div>
 
-        <!-- Detail panel screenshot -->
         <div class="doc-img-grid two">
           <figure class="doc-img-slot">
             <div class="doc-img-wrap" data-slot="Quest entry selected screenshot">
@@ -699,7 +527,7 @@ Output: DrawnQuest (BP_QuestData ref) or None
         </div>
       </article>
 
-      <!-- ══ DIALOGUE ══ -->
+      <!-- DIALOGUE -->
       <article class="doc-page" id="page-dialogue">
         <h1 class="doc-h1">Dialogue System</h1>
         <div class="doc-meta">
@@ -710,7 +538,6 @@ Output: DrawnQuest (BP_QuestData ref) or None
 
         <div class="doc-callout"><strong>Confirmed from research:</strong> Ghost of Yōtei's dialogue is fully automated - lines play on their own, you cannot advance line-by-line, and the only available input is hold-to-skip the whole cutscene. V1 matches that exactly.</div>
 
-        <!-- Dialogue screenshot + video -->
         <div class="doc-img-grid single">
           <figure class="doc-img-slot">
             <div class="doc-img-wrap" data-slot="Dialogue box in game screenshot">
@@ -736,7 +563,6 @@ Offset   = Midpoint + (Right Vector * SideDistance) + (Up * HeightOffset)
 Camera → SetActorLocation(Offset)
 Camera → LookAt(Midpoint)</div>
 
-        <!-- Dialogue system video -->
         <h2 class="doc-h2">System Demo</h2>
         <div class="doc-video-wrap">
           <div class="doc-video-frame">
@@ -748,7 +574,7 @@ Camera → LookAt(Midpoint)</div>
         <div class="doc-callout warn"><strong>Gotcha:</strong> WBP_DialogueBox must be created at level start in BeginPlay, not on first Interact. If it's created on Interact, its Bind Event won't be listening in time for that very first call - the first line silently fires and nothing shows.</div>
       </article>
 
-      <!-- ══ WIDGETS ══ -->
+      <!-- WIDGETS -->
       <article class="doc-page" id="page-widgets">
         <h1 class="doc-h1">All Widgets</h1>
         <div class="doc-meta">
@@ -772,31 +598,9 @@ Camera → LookAt(Midpoint)</div>
         <h2 class="doc-h2">Tab Key Fix - BP_PlayerController</h2>
         <p class="doc-p">The pause menu toggle was moved from BP_PlayerCharacter to BP_PlayerController. Character input is not guaranteed to keep processing once <span class="doc-inline">Set Game Paused</span> is active. A PlayerController is.</p>
         <p class="doc-p">Closing is handled by WBP_PauseMenu's own <span class="doc-inline">On Preview Key Down</span> override - not through a Controller bool - which sidesteps the state-desync bug that caused Tab to get stuck only ever opening.</p>
-
-        <!-- Widget screenshots -->
-        <div class="doc-img-grid">
-          <figure class="doc-img-slot">
-            <div class="doc-img-wrap" data-slot="WBP_HealthBar screenshot">
-              <!-- <img src="../../media/goy/widget-health.png" alt="Health bar" /> -->
-            </div>
-            <span class="doc-img-caption">WBP_HealthBar</span>
-          </figure>
-          <figure class="doc-img-slot">
-            <div class="doc-img-wrap" data-slot="WBP_InteractionPrompt screenshot">
-              <!-- <img src="../../media/goy/widget-interact.png" alt="Interaction prompt" /> -->
-            </div>
-            <span class="doc-img-caption">WBP_InteractionPrompt</span>
-          </figure>
-          <figure class="doc-img-slot">
-            <div class="doc-img-wrap" data-slot="WBP_PauseMenu screenshot">
-              <!-- <img src="../../media/goy/widget-pause.png" alt="Pause menu" /> -->
-            </div>
-            <span class="doc-img-caption">WBP_PauseMenu (Tab)</span>
-          </figure>
-        </div>
       </article>
 
-      <!-- ══ ROADMAP ══ -->
+      <!-- ROADMAP -->
       <article class="doc-page" id="page-roadmap">
         <h1 class="doc-h1">Roadmap</h1>
         <div class="doc-meta">
@@ -805,7 +609,6 @@ Camera → LookAt(Midpoint)</div>
 
         <h2 class="doc-h2">Must-Do - Studio-Impressive</h2>
         <ul class="doc-ul">
-          <li><strong style="color:var(--text)">Cinematic Dialogue + voice files</strong> - first, because Camp and Settler both depend on it</li>
           <li><strong style="color:var(--text)">Camp trigger</strong> - random NPC visitor at rest point → dialogue → quest draw</li>
           <li><strong style="color:var(--text)">Settler trigger</strong> - NPC in settlement → interact → dialogue → draw</li>
           <li><strong style="color:var(--text)">Bounty Board</strong> - board actor → interact → draw (no dialogue needed)</li>
@@ -825,9 +628,7 @@ Camera → LookAt(Midpoint)</div>
         </ul>
 
         <h2 class="doc-h2">Dependency Order</h2>
-        <div class="doc-code">Dialogue System
-    ↓
-Camp + Settler + Bounty Board  (all need Dialogue)
+        <div class="doc-code">Camp + Settler + Bounty Board
     ↓
 Combat System
     ↓
@@ -842,11 +643,10 @@ Ally Recruitment  (needs Quest + Enemy + Dialogue)</div>
   <!-- FOOTER -->
   <footer class="wiki-footer">
     <span class="wiki-footer-logo"><span>OUGA</span>DEV · Docs</span>
-    <span class="wiki-footer-copy">Ghost of Yōtei (UE5) - updated as development progresses</span>
+    <span class="wiki-footer-copy">Yotei Quest System (UE5) - updated as development progresses</span>
   </footer>
 
   <script>
-    /* ── SIDEBAR NAV ─────────────────────────── */
     const links = document.querySelectorAll('.sidebar-link');
     const pages = document.querySelectorAll('.doc-page');
 
@@ -859,25 +659,19 @@ Ally Recruitment  (needs Quest + Enemy + Dialogue)</div>
     links.forEach(link => {
       link.addEventListener('click', () => {
         showPage(link.dataset.page);
-        // close mobile sidebar
         sidebar.classList.remove('open');
         ham.classList.remove('open');
       });
     });
 
-    // default page
     showPage('overview');
 
-    /* ── MOBILE SIDEBAR ──────────────────────── */
     const sidebar = document.getElementById('wikiSidebar');
-    const ham     = document.getElementById('hamDocs');
+    const ham = document.getElementById('hamDocs');
     ham.addEventListener('click', () => {
       ham.classList.toggle('open');
       sidebar.classList.toggle('open');
     });
-
-    /* ── TOP BAR SCROLL SHADOW ───────────────── */
-    // (already has solid bg, no scroll effect needed)
   </script>
 </body>
 </html>
