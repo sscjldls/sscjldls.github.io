@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <link rel="icon" type="image/png" href="../../media/purpleLogo.png" />
-  <title>Inventory System (UE5) | OUGADEV Docs</title>
+  <title>Inventory System (Unity) | OUGADEV Docs</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700;800&family=Outfit:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
@@ -65,7 +65,7 @@
     .topbar-sep { opacity: .4; }
     .topbar-right { display: flex; align-items: center; gap: 10px; }
     .badge { font-size: .68rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; padding: 3px 10px; border-radius: 4px; }
-    .badge-unreal { color: var(--teal); background: rgba(30,200,163,.1); border: 1px solid rgba(30,200,163,.25); }
+    .badge-unity  { color: #5B8DEF; background: rgba(91,141,239,.1); border: 1px solid rgba(91,141,239,.25); }
     .badge-wip    { color: var(--gold); background: rgba(245,197,66,.1); border: 1px solid rgba(245,197,66,.25); }
     .badge-done   { color: var(--teal); background: rgba(30,200,163,.1); border: 1px solid rgba(30,200,163,.25); }
     .badge-plan   { color: var(--muted); background: transparent; border: 1px solid var(--border); }
@@ -215,7 +215,7 @@
     </div>
     <div class="topbar-right">
       <div class="topbar-badges">
-        <span class="badge badge-unreal">Unreal Engine 5.7</span>
+        <span class="badge badge-unity">Unity</span>
         <span class="badge badge-plan">Planning</span>
       </div>
       <a href="../" class="topbar-back">← Back to Projects</a>
@@ -230,10 +230,10 @@
     <div class="proj-hero-aura"></div>
     <div class="proj-hero-inner">
       <p class="proj-hero-eye">Game Systems Documentation</p>
-      <h1 class="proj-hero-title">Data-Driven Inventory System (UE5)</h1>
-      <p class="proj-hero-desc">A Blueprint-only inventory built around a JSON-imported Data Table. Items, categories, stacking rules, and equipment slots all live in data rows rather than individual Blueprint assets. Adding an item is adding a row.</p>
+      <h1 class="proj-hero-title">Data-Driven Inventory System (Unity)</h1>
+      <p class="proj-hero-desc">A Unity inventory built around ScriptableObjects and a JSON-driven item database. Items, categories, stacking rules, and equipment slots all live in data assets rather than individual MonoBehaviour scripts. Adding an item is adding an asset.</p>
       <div class="proj-hero-meta">
-        <span class="badge badge-unreal">Unreal Engine 5.7</span>
+        <span class="badge badge-unity">Unity</span>
         <span class="badge badge-plan">Planning</span>
       </div>
     </div>
@@ -271,7 +271,7 @@
       <article class="doc-page" id="page-overview">
         <h1 class="doc-h1">Overview</h1>
         <div class="doc-meta">
-          <span class="badge badge-unreal">Unreal Engine 5.7</span>
+          <span class="badge badge-unity">Unity</span>
           <span class="badge badge-plan">Planning</span>
         </div>
 
@@ -279,7 +279,7 @@
           <strong>Draft.</strong> This page is being planned. Content will fill in as development starts.
         </div>
 
-        <p class="doc-p">A data-driven inventory system built Blueprint-only in Unreal Engine 5.7. The design follows the same principle as the Quest System: item definitions live in a single Data Table imported from JSON. No item-specific Blueprint assets. The <span class="doc-term">ItemManager</span> Game Instance Subsystem is the only place runtime inventory state lives, and every UI widget reacts to events rather than polling state on Tick.</p>
+        <p class="doc-p">A data-driven inventory system built in Unity. Item definitions live in ScriptableObjects rather than hardcoded MonoBehaviours - one asset per item type, no script per item. The <span class="doc-term">InventoryManager</span> singleton is the only place runtime inventory state lives, and every UI element reacts to C# events rather than polling state in Update.</p>
 
         <h2 class="doc-h2">What's Done</h2>
         <div class="doc-status-grid">
@@ -308,29 +308,25 @@
       <article class="doc-page" id="page-concept">
         <h1 class="doc-h1">The Concept</h1>
         <div class="doc-meta">
-          <span class="badge badge-unreal">Unreal Engine 5.7</span>
+          <span class="badge badge-unity">Unity</span>
         </div>
 
-        <p class="doc-p">Instead of creating a separate Blueprint asset for every weapon, potion, or piece of gear, each item is a row in a Data Table. The table defines everything about an item: its name, description, icon, category, stack limit, and which equipment slot it goes in. Adding a sword to the game means adding one row, not creating a new BP_Sword class.</p>
+        <p class="doc-p">Instead of writing a new script for every weapon, potion, or piece of gear, each item is a ScriptableObject asset. It carries everything: name, description, icon, category, stack limit, and equipment slot. Adding a sword to the game means creating one asset in the Project window, filling in the fields, and dropping it in the database. No code change.</p>
 
-        <h2 class="doc-h2">Why Data Tables</h2>
+        <h2 class="doc-h2">Why ScriptableObjects</h2>
         <ul class="doc-ul">
-          <li>Designers can add or tweak items in a spreadsheet without opening the Blueprint editor.</li>
-          <li>The same pickup actor handles every item type. No per-item Actor subclasses.</li>
-          <li>The UI reads from the same table to display names, icons, and descriptions - single source of truth.</li>
-          <li>Exporting and importing JSON means the item database can live outside the project (in a Google Sheet, say) and sync back in.</li>
+          <li>Item data lives in the Project window as serialized assets, not in a MonoBehaviour attached to a prefab.</li>
+          <li>One generic pickup prefab handles every item type. The only thing that changes per pickup is which <span class="doc-term">ItemData</span> ScriptableObject it references.</li>
+          <li>The UI reads directly from the same assets to display names, icons, and descriptions. Single source of truth, no sync required.</li>
+          <li>ScriptableObjects can be exported to JSON for external editing (a spreadsheet pipeline) and re-imported without touching the codebase.</li>
         </ul>
-
-        <div class="doc-callout">
-          <strong>Same pattern as the Quest System.</strong> <span class="doc-term">BP_YoteiGameInstance</span> owns quest state; <span class="doc-term">ItemManager</span> will own inventory state. Both systems use Data Tables and event dispatchers so the UI never polls. Keeping the pattern consistent means the two systems will be easy to connect later, for example when a quest completion hands the player a reward item.
-        </div>
 
         <h2 class="doc-h2">How It's Built</h2>
         <ul class="doc-ul">
-          <li><span class="doc-term">ItemManager</span> is a Game Instance Subsystem. It is the only place the player's current inventory array lives.</li>
-          <li>Every widget that shows inventory data binds to <span class="doc-term">OnItemAdded</span> and <span class="doc-term">OnItemRemoved</span> dispatchers in Event Construct. No Tick reads.</li>
-          <li>Items are identified by their Data Table row name. The row name is what gets stored in the inventory array, not a full copy of the item struct.</li>
-          <li>Equipment state is a separate Map on the subsystem: slot enum to item row name. Equipping an item writes to the map and broadcasts <span class="doc-term">OnEquipmentChanged</span>.</li>
+          <li><span class="doc-term">InventoryManager</span> is a persistent singleton that survives scene loads. It is the only place the player's current inventory list lives at runtime.</li>
+          <li>Every UI panel that shows inventory data subscribes to <span class="doc-term">OnItemAdded</span> and <span class="doc-term">OnItemRemoved</span> C# events in OnEnable. No Update polling.</li>
+          <li>Items are identified by their <span class="doc-term">ItemData</span> ScriptableObject reference. The inventory list stores the reference and a quantity, not a copy of the data.</li>
+          <li>Equipment state is a separate Dictionary on the manager: slot enum to <span class="doc-term">ItemData</span> reference. Equipping writes to the Dictionary and fires <span class="doc-term">OnEquipmentChanged</span>.</li>
         </ul>
       </article>
 
@@ -338,41 +334,42 @@
       <article class="doc-page" id="page-itemdata">
         <h1 class="doc-h1">Item Data</h1>
         <div class="doc-meta">
-          <span class="badge badge-unreal">Unreal Engine 5.7</span>
+          <span class="badge badge-unity">Unity</span>
           <span class="badge badge-plan">Planning</span>
         </div>
 
-        <p class="doc-p">All item definitions live in a single Data Table using a custom struct. This is the schema being planned - fields may change as development starts.</p>
+        <p class="doc-p">Each item is a <span class="doc-term">ItemData</span> ScriptableObject. The fields below are the planned schema - may grow once development starts.</p>
 
-        <h2 class="doc-h2">Item Struct Fields</h2>
+        <h2 class="doc-h2">ItemData Fields</h2>
         <table class="doc-table">
           <tr><th>Field</th><th>Type</th><th>Purpose</th></tr>
-          <tr><td>ItemName</td><td>Text</td><td>Display name shown in the inventory UI</td></tr>
-          <tr><td>Description</td><td>Text</td><td>Flavor text shown in the item detail panel</td></tr>
-          <tr><td>Icon</td><td>Texture2D (soft ref)</td><td>Icon displayed in inventory slots</td></tr>
-          <tr><td>Category</td><td>E_ItemCategory</td><td>Weapon / Armor / Consumable / Quest / Misc - drives sorting and slot rules</td></tr>
-          <tr><td>EquipSlot</td><td>E_EquipSlot</td><td>Which slot this item occupies when equipped. None for non-equippable items.</td></tr>
-          <tr><td>MaxStack</td><td>Integer</td><td>How many of this item fit in one inventory slot. 1 for unique items.</td></tr>
-          <tr><td>Weight</td><td>Float</td><td>Contribution to carry weight. 0 for weightless items like quest items.</td></tr>
-          <tr><td>IsQuestItem</td><td>Bool</td><td>Quest items cannot be dropped or sold and are hidden from the main inventory grid.</td></tr>
+          <tr><td>ItemName</td><td>string</td><td>Display name shown in the inventory UI</td></tr>
+          <tr><td>Description</td><td>string</td><td>Flavor text shown in the item detail panel</td></tr>
+          <tr><td>Icon</td><td>Sprite</td><td>Icon displayed in inventory slots</td></tr>
+          <tr><td>Category</td><td>ItemCategory (enum)</td><td>Weapon / Armor / Consumable / KeyItem / Misc - drives sorting and slot rules</td></tr>
+          <tr><td>EquipSlot</td><td>EquipSlot (enum)</td><td>Which slot this item occupies when equipped. None for non-equippable items.</td></tr>
+          <tr><td>MaxStack</td><td>int</td><td>How many of this item fit in one slot. 1 for unique items.</td></tr>
+          <tr><td>Weight</td><td>float</td><td>Contribution to carry weight. 0 for weightless items.</td></tr>
+          <tr><td>IsKeyItem</td><td>bool</td><td>Key items cannot be dropped or sold and are filtered out of the main grid.</td></tr>
         </table>
 
         <div class="doc-callout warn">
-          <strong>Still deciding:</strong> whether stats (damage, defense, etc.) live as fields on this struct or on a separate linked table keyed by row name. A separate table keeps the base item definition clean and makes it easier to add stat variation (quality tiers, upgrades) later without touching the core struct.
+          <strong>Still deciding:</strong> whether stats (damage, defense, etc.) live as fields on <span class="doc-term">ItemData</span> or on a separate <span class="doc-term">WeaponData</span> / <span class="doc-term">ArmorData</span> subclass. Subclassing keeps the base asset clean and makes it easy to add stat variation later without touching items that don't need stats.
         </div>
 
         <h2 class="doc-h2">Category Enum</h2>
-        <div class="doc-code">E_ItemCategory:
-  Weapon        // swords, bows, tools
-  Armor         // head, chest, hands, feet
-  Consumable    // potions, food, throwables
-  Quest         // key items, notes, special objects
-  Misc          // sellable junk, crafting materials</div>
+        <div class="doc-code">public enum ItemCategory {
+    Weapon,      // swords, bows, tools
+    Armor,       // head, chest, hands, feet
+    Consumable,  // potions, food, throwables
+    KeyItem,     // quest-critical objects
+    Misc         // sellable junk, crafting materials
+}</div>
 
         <div class="doc-placeholder">
           <div class="doc-placeholder-icon">📋</div>
-          <div class="doc-placeholder-label">Item Table Screenshot</div>
-          Add a screenshot of the Data Table open in the Unreal editor once populated with some test rows.
+          <div class="doc-placeholder-label">ItemData Inspector Screenshot</div>
+          Add a screenshot of an ItemData asset open in the Unity Inspector once a few test items exist.
         </div>
       </article>
 
@@ -380,46 +377,46 @@
       <article class="doc-page" id="page-manager">
         <h1 class="doc-h1">Item Manager</h1>
         <div class="doc-meta">
-          <span class="badge badge-unreal">Unreal Engine 5.7</span>
+          <span class="badge badge-unity">Unity</span>
           <span class="badge badge-plan">Planning</span>
         </div>
 
-        <p class="doc-p"><span class="doc-term">ItemManager</span> is a Game Instance Subsystem that owns the player's inventory array and broadcasts changes. Every other system calls into it - pickups call <span class="doc-term">AddItem</span>, the UI calls <span class="doc-term">RemoveItem</span>, and the equipment system calls <span class="doc-term">EquipItem</span>.</p>
+        <p class="doc-p"><span class="doc-term">InventoryManager</span> is a persistent singleton MonoBehaviour that survives scene loads. It owns the player's inventory list and fires C# events when it changes. Everything else - pickups, UI, equipment - calls into it or subscribes to it.</p>
 
         <h2 class="doc-h2">Core Functions (Planned)</h2>
-        <div class="doc-code">AddItem(RowName, Quantity)
-  - Find existing stack for this row name if stackable
-  - If stack exists and has room: increment quantity
-  - Else: add new inventory entry
-  - Broadcast OnItemAdded
+        <div class="doc-code">AddItem(ItemData item, int quantity)
+  - Find existing InventoryEntry for this item if stackable
+  - If entry exists and has room: increment quantity
+  - Else: add new InventoryEntry to the list
+  - Fire OnItemAdded event
 
-RemoveItem(RowName, Quantity)
-  - Find stack, decrement quantity
-  - If quantity reaches 0: remove entry from array
-  - Broadcast OnItemRemoved
+RemoveItem(ItemData item, int quantity)
+  - Find entry, decrement quantity
+  - If quantity reaches 0: remove entry from list
+  - Fire OnItemRemoved event
 
-EquipItem(RowName)
-  - Look up EquipSlot from Data Table row
-  - If slot occupied: unequip current item first
-  - Write to EquippedItems map (slot -> row name)
-  - Broadcast OnEquipmentChanged
+EquipItem(ItemData item)
+  - Read item.EquipSlot
+  - If slot occupied: call UnequipItem(slot) first
+  - Write to EquippedItems dict (slot -> ItemData)
+  - Fire OnEquipmentChanged event
 
-UnequipItem(Slot)
-  - Clear slot in EquippedItems map
-  - Broadcast OnEquipmentChanged
+UnequipItem(EquipSlot slot)
+  - Remove slot key from EquippedItems dict
+  - Fire OnEquipmentChanged event
 
-HasItem(RowName) -> Bool
-  - Used by quests and triggers to check prerequisites</div>
+HasItem(ItemData item) -> bool
+  - Returns true if item exists in inventory list</div>
 
-        <h2 class="doc-h2">Subsystem Variables (Planned)</h2>
+        <h2 class="doc-h2">Manager Variables (Planned)</h2>
         <table class="doc-table">
           <tr><th>Variable</th><th>Type</th><th>Description</th></tr>
-          <tr><td>Inventory</td><td>Array of F_InventoryEntry</td><td>Each entry holds a row name and a quantity. This is the player's current items.</td></tr>
-          <tr><td>EquippedItems</td><td>Map of E_EquipSlot to Name</td><td>What's currently equipped in each slot. Empty slots are absent from the map.</td></tr>
-          <tr><td>MaxCarryWeight</td><td>Float</td><td>Total carry limit. Set by character stats. Checked before AddItem completes.</td></tr>
-          <tr><td>OnItemAdded</td><td>Event Dispatcher</td><td>Fired after any item is added. Passes the row name and new quantity.</td></tr>
-          <tr><td>OnItemRemoved</td><td>Event Dispatcher</td><td>Fired after any item is removed. Passes row name.</td></tr>
-          <tr><td>OnEquipmentChanged</td><td>Event Dispatcher</td><td>Fired when any equipment slot changes. Passes the slot enum.</td></tr>
+          <tr><td>inventory</td><td>List&lt;InventoryEntry&gt;</td><td>Each entry holds an ItemData reference and a quantity. The player's current items.</td></tr>
+          <tr><td>equippedItems</td><td>Dictionary&lt;EquipSlot, ItemData&gt;</td><td>What's currently equipped in each slot. Empty slots have no key.</td></tr>
+          <tr><td>maxCarryWeight</td><td>float</td><td>Total carry limit. Set by character stats. Checked before AddItem completes.</td></tr>
+          <tr><td>OnItemAdded</td><td>Action&lt;ItemData, int&gt;</td><td>Fired after any item is added. Passes the item and new total quantity.</td></tr>
+          <tr><td>OnItemRemoved</td><td>Action&lt;ItemData&gt;</td><td>Fired after any item is removed.</td></tr>
+          <tr><td>OnEquipmentChanged</td><td>Action&lt;EquipSlot&gt;</td><td>Fired when any equipment slot changes. Passes the affected slot.</td></tr>
         </table>
       </article>
 
@@ -427,28 +424,28 @@ HasItem(RowName) -> Bool
       <article class="doc-page" id="page-pickups">
         <h1 class="doc-h1">Pickups</h1>
         <div class="doc-meta">
-          <span class="badge badge-unreal">Unreal Engine 5.7</span>
+          <span class="badge badge-unity">Unity</span>
           <span class="badge badge-plan">Planning</span>
         </div>
 
-        <p class="doc-p">One generic pickup actor handles every item type. The only per-instance data it holds is the item's row name and a quantity. On interact, it calls <span class="doc-term">ItemManager.AddItem</span> and destroys itself.</p>
+        <p class="doc-p">One generic pickup prefab handles every item type. The only per-instance data it holds is which <span class="doc-term">ItemData</span> asset it represents and a quantity. On interact, it calls <span class="doc-term">InventoryManager.AddItem</span> and destroys itself.</p>
 
-        <h2 class="doc-h2">BP_ItemPickup (Planned)</h2>
+        <h2 class="doc-h2">ItemPickup (Planned)</h2>
         <ul class="doc-ul">
-          <li>Exposes two variables in the editor: <span class="doc-term">ItemRowName</span> (Name) and <span class="doc-term">Quantity</span> (Integer, default 1). Both are instance-editable so level designers can drag one actor into the world and set which item it represents.</li>
-          <li>On BeginPlay: looks up the item's data in the table to pull the display name and mesh. Sets the <span class="doc-term">StaticMeshComponent</span> to whatever mesh is defined in the row. If no mesh is defined, falls back to a generic cube placeholder.</li>
-          <li>On Interact (called by the player's Interaction System): calls <span class="doc-term">ItemManager.AddItem(ItemRowName, Quantity)</span>, plays a pickup sound/effect, then destroys self.</li>
-          <li>Optionally shows a floating label above the mesh with the item name pulled from the table. The label is a <span class="doc-term">WBP_WorldLabel</span> component.</li>
+          <li>Two serialized fields in the Inspector: <span class="doc-term">itemData</span> (ItemData ScriptableObject) and <span class="doc-term">quantity</span> (int, default 1). Drag the prefab into the scene, assign the asset, done.</li>
+          <li>On Start: reads <span class="doc-term">itemData</span> to pull the display name and optional world mesh. If no mesh is assigned, falls back to a placeholder capsule.</li>
+          <li>On trigger enter or interact: calls <span class="doc-term">InventoryManager.Instance.AddItem(itemData, quantity)</span>, plays a pickup sound, then calls Destroy(gameObject).</li>
+          <li>Optionally renders a floating world-space label showing the item name via a Billboard Canvas child object.</li>
         </ul>
 
         <div class="doc-callout warn">
-          <strong>Dependency:</strong> the pickup actor relies on the Interaction System from the Quest System being wired up. The same overlap/interact flow used by the Settler NPC trigger will drive pickup detection. No new input binding needed.
+          <strong>Interaction approach TBD:</strong> deciding between trigger-based auto-pickup (walk into it to collect) and a dedicated interact input (press E). Trigger-based is faster to build; interact input matches the feel of most RPGs. Will decide once the player controller is further along.
         </div>
 
         <div class="doc-placeholder">
           <div class="doc-placeholder-icon">📦</div>
-          <div class="doc-placeholder-label">Pickup Actor Screenshot</div>
-          Add in-editor screenshot of BP_ItemPickup with instance variables visible in the Details panel.
+          <div class="doc-placeholder-label">Pickup Prefab Screenshot</div>
+          Add a screenshot of the ItemPickup prefab in the Inspector with an ItemData asset assigned.
         </div>
       </article>
 
@@ -456,35 +453,33 @@ HasItem(RowName) -> Bool
       <article class="doc-page" id="page-ui">
         <h1 class="doc-h1">Inventory UI</h1>
         <div class="doc-meta">
-          <span class="badge badge-unreal">Unreal Engine 5.7</span>
+          <span class="badge badge-unity">Unity</span>
           <span class="badge badge-plan">Planning</span>
         </div>
 
-        <p class="doc-p">The inventory screen lives inside the Pause Menu alongside the Quest Log, accessed via its own tab. It uses a two-panel layout: a grid of item slots on the left, a detail panel on the right.</p>
+        <p class="doc-p">The inventory screen opens on a pause input. It uses a two-panel layout: a grid of item slots on the left, a detail panel on the right. Built with Unity's UI Toolkit or uGUI - not decided yet.</p>
 
-        <h2 class="doc-h2">Widget Hierarchy (Planned)</h2>
-        <div class="doc-code">WBP_PauseMenu
-└── Widget Switcher (Tab index 2: Inventory)
-    └── WBP_InventoryTab
-        ├── Left: WBP_InventoryGrid
-        │   └── Grid of WBP_InventorySlot (one per inventory entry)
-        │       each slot shows the item icon and a quantity badge
-        └── Right: WBP_ItemDetail
-            shows name, description, category, weight
-            and Equip / Use / Drop buttons based on item type</div>
+        <h2 class="doc-h2">UI Structure (Planned)</h2>
+        <div class="doc-code">InventoryScreen (Canvas)
+├── Left: InventoryGrid
+│   └── ItemSlot x N (one per inventory entry)
+│       each slot shows the item Icon (Sprite) and a quantity badge
+└── Right: ItemDetailPanel
+    shows name, description, category, weight
+    and Equip / Use / Drop buttons depending on item type</div>
 
         <h2 class="doc-h2">How Updates Work</h2>
         <ul class="doc-ul">
-          <li><span class="doc-term">WBP_InventoryTab</span> binds to <span class="doc-term">OnItemAdded</span> and <span class="doc-term">OnItemRemoved</span> in Event Construct. When either fires, it rebuilds the grid.</li>
-          <li><span class="doc-term">WBP_ItemDetail</span> is a persistent single instance, updated in place when the player clicks a slot. It never gets rebuilt - same pattern as <span class="doc-term">WBP_QuestDetail</span> in the Quest Log.</li>
-          <li>Clicking a slot passes the item row name to the detail panel. The panel looks up the full struct from the Data Table and populates its text and icon fields.</li>
-          <li>The Equip button is only visible for equippable items. The Use button only for consumables. The Drop button hidden for quest items. All of this is driven by the item's Category and IsQuestItem fields - no per-item widget variants.</li>
+          <li><span class="doc-term">InventoryGrid</span> subscribes to <span class="doc-term">InventoryManager.OnItemAdded</span> and <span class="doc-term">OnItemRemoved</span> in OnEnable (unsubscribes in OnDisable). When either fires, it rebuilds the slot list.</li>
+          <li><span class="doc-term">ItemDetailPanel</span> is a persistent single instance, updated in place when the player clicks a slot. It never gets destroyed and recreated.</li>
+          <li>Clicking a slot passes the <span class="doc-term">ItemData</span> reference to the detail panel. The panel reads directly from the asset to populate text and icon.</li>
+          <li>The Equip button is only active for equippable items. Use only for consumables. Drop hidden for key items. All driven by <span class="doc-term">itemData.Category</span> and <span class="doc-term">itemData.IsKeyItem</span> - no per-item UI variants.</li>
         </ul>
 
         <div class="doc-placeholder">
           <div class="doc-placeholder-icon">🖥</div>
           <div class="doc-placeholder-label">Inventory UI Screenshot</div>
-          Add a screenshot of WBP_InventoryTab open in the Pause Menu with some test items populated.
+          Add a screenshot of the inventory screen open in Play Mode with some test items populated.
         </div>
       </article>
 
@@ -492,32 +487,33 @@ HasItem(RowName) -> Bool
       <article class="doc-page" id="page-equipment">
         <h1 class="doc-h1">Equipment Slots</h1>
         <div class="doc-meta">
-          <span class="badge badge-unreal">Unreal Engine 5.7</span>
+          <span class="badge badge-unity">Unity</span>
           <span class="badge badge-plan">Planning</span>
         </div>
 
-        <p class="doc-p">Equipment slots define where an item lives on the character when equipped. The slot enum has one value per attachment point. Only one item can occupy a slot at a time. The <span class="doc-term">ItemManager</span> enforces this.</p>
+        <p class="doc-p">Equipment slots define where an item lives on the character when equipped. One item per slot, enforced by <span class="doc-term">InventoryManager</span>. The slot enum maps directly to Transform attachment points on the character rig.</p>
 
         <h2 class="doc-h2">Equipment Slot Enum (Planned)</h2>
-        <div class="doc-code">E_EquipSlot:
-  PrimaryWeapon     // right hand weapon
-  SecondaryWeapon   // left hand / shield
-  Head
-  Chest
-  Hands
-  Feet
-  Accessory_1
-  Accessory_2</div>
+        <div class="doc-code">public enum EquipSlot {
+    PrimaryWeapon,    // right hand
+    SecondaryWeapon,  // left hand / shield
+    Head,
+    Chest,
+    Hands,
+    Feet,
+    Accessory1,
+    Accessory2
+}</div>
 
         <h2 class="doc-h2">How It Works</h2>
         <ul class="doc-ul">
-          <li>When the player equips an item, <span class="doc-term">ItemManager.EquipItem</span> checks the item's <span class="doc-term">EquipSlot</span> field. If that slot already has something, it unequips that item first (moves it back to the inventory array) before writing the new one.</li>
-          <li><span class="doc-term">OnEquipmentChanged</span> fires after every equip or unequip. The character's mesh component binds to this to attach or detach the item's skeletal mesh at the correct socket.</li>
-          <li>The equipment panel in the UI is a separate widget showing the character silhouette with slot targets. Clicking a slot opens the inventory filtered to items that fit that slot. Same data, different filter.</li>
+          <li>When the player equips an item, <span class="doc-term">InventoryManager.EquipItem</span> checks <span class="doc-term">itemData.EquipSlot</span>. If that slot is occupied, the current item gets moved back to the inventory list before the new one writes in.</li>
+          <li><span class="doc-term">OnEquipmentChanged</span> fires after every equip or unequip. A <span class="doc-term">CharacterEquipment</span> MonoBehaviour subscribes to this event and handles the visual: instantiating the item's prefab at the matching child Transform on the rig.</li>
+          <li>The equipment panel in the UI shows slot targets arranged around a character silhouette. Clicking a slot opens the inventory grid filtered to items whose <span class="doc-term">EquipSlot</span> matches. Same data, different filter.</li>
         </ul>
 
         <div class="doc-callout warn">
-          <strong>Dependency:</strong> visual mesh swapping requires sockets set up on the character's Skeletal Mesh. This can be stubbed with placeholder attachment logic (just attach a cube to a socket) and swapped for real meshes later. The data and event flow is independent of the visual result.
+          <strong>Dependency:</strong> visual swapping requires named child Transforms on the character rig (e.g. "RightHandAttach"). This can be stubbed early with a placeholder cube at each point and swapped for real meshes later. The data layer and events work independently of the visual result.
         </div>
 
         <div class="doc-placeholder">
@@ -531,41 +527,41 @@ HasItem(RowName) -> Bool
       <article class="doc-page" id="page-roadmap">
         <h1 class="doc-h1">Roadmap</h1>
         <div class="doc-meta">
-          <span class="badge badge-unreal">Unreal Engine 5.7</span>
+          <span class="badge badge-unity">Unity</span>
         </div>
 
         <h2 class="doc-h2">Build Order</h2>
         <ul class="doc-ul">
-          <li>Item Data Table: define the struct, populate a handful of test rows (a sword, a potion, a key item). Get the import pipeline working from JSON first.</li>
-          <li>ItemManager subsystem: the array, the Map, and the three dispatchers. No UI yet - test by printing to the screen from BeginPlay.</li>
-          <li>BP_ItemPickup: one actor, instance-editable row name. Drop it in the level, walk into it, confirm the item lands in the array via on-screen debug.</li>
-          <li>WBP_InventoryGrid + WBP_InventorySlot: build the grid, wire it to OnItemAdded / OnItemRemoved. Just icons and quantity for now.</li>
-          <li>WBP_ItemDetail: click a slot, see the item's name and description. Add the Equip / Use / Drop buttons.</li>
-          <li>Equipment slots: EquipItem logic, OnEquipmentChanged, stub visual attachment (cube on socket).</li>
+          <li>ItemData ScriptableObject: define the class, create a handful of test assets (a sword, a potion, a key item). Confirm they serialize correctly in the Inspector.</li>
+          <li>InventoryManager singleton: the list, the Dictionary, and the three C# events. No UI yet - test by calling AddItem from a debug key and logging the list to the console.</li>
+          <li>ItemPickup prefab: one prefab, ItemData field in the Inspector. Drop it in a test scene, walk into it, confirm the item lands in the list via console log.</li>
+          <li>InventoryGrid + ItemSlot UI: build the grid, wire it to OnItemAdded / OnItemRemoved. Just icons and quantity badges for now.</li>
+          <li>ItemDetailPanel: click a slot, see name and description. Add the Equip / Use / Drop buttons with correct visibility per category.</li>
+          <li>Equipment slot logic: EquipItem, OnEquipmentChanged, stub visual attachment (cube at a named Transform on the rig).</li>
           <li>Equipment panel UI: character silhouette, slot targets, filtered inventory view.</li>
-          <li>Quest System integration: HasItem checks for quest prerequisites, AddItem called from quest completion rewards.</li>
+          <li>Shop system: a separate scene object or NPC that opens a filtered view and calls AddItem / RemoveItem with a currency check.</li>
         </ul>
 
         <h2 class="doc-h2">Dependency Order</h2>
-        <div class="doc-code">Item Data Table + Struct
+        <div class="doc-code">ItemData ScriptableObject
     |
-ItemManager Subsystem
+InventoryManager (singleton)
     |
-BP_ItemPickup         WBP_InventoryGrid
-    |                       |
-    +------- both need ItemManager wired first -------+
-                            |
-                   WBP_ItemDetail
-                            |
-                  Equipment Slot Logic
-                            |
-              Equipment Panel UI + Quest Integration</div>
+ItemPickup Prefab         InventoryGrid UI
+    |                             |
+    +---- both need InventoryManager wired first ----+
+                                  |
+                         ItemDetailPanel UI
+                                  |
+                       Equipment Slot Logic
+                                  |
+                     Equipment Panel UI + Shop</div>
 
         <h2 class="doc-h2">What This Unlocks</h2>
         <ul class="doc-ul">
-          <li>Quest rewards: a quest completion can hand the player an item by calling ItemManager.AddItem. The Quest System and Inventory System stay decoupled.</li>
-          <li>Ally gear: allies recruited via Side Quests can have loadouts driven by the same Data Table.</li>
-          <li>Shop system: a shop is just a UI that reads the item table and calls AddItem / RemoveItem with a currency check in front.</li>
+          <li>Shop system: a shop is just a UI that reads from ItemData assets and calls AddItem / RemoveItem with a currency check in front.</li>
+          <li>Crafting: a recipe is a list of ItemData inputs and one ItemData output. The crafting system calls HasItem, RemoveItem, then AddItem.</li>
+          <li>Loot tables: enemies drop pickups by picking from a weighted list of ItemData references. No per-enemy item code needed.</li>
         </ul>
       </article>
 
@@ -575,7 +571,7 @@ BP_ItemPickup         WBP_InventoryGrid
   <!-- FOOTER -->
   <footer class="wiki-footer">
     <span class="wiki-footer-logo"><span>OUGA</span>DEV &middot; Docs</span>
-    <span class="wiki-footer-copy">Inventory System (UE5) - draft, not yet published</span>
+    <span class="wiki-footer-copy">Inventory System (Unity) - draft, not yet published</span>
   </footer>
 
   <script>
