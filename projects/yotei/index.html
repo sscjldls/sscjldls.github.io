@@ -369,10 +369,10 @@
 
         <h2 class="doc-h2">Architectural Principles</h2>
         <ul class="doc-ul">
-          <li><strong style="color:var(--text)">No polling.</strong> Every widget subscribes to an Event Dispatcher and only updates when something changes. Nothing reads state in Tick.</li>
-          <li><strong style="color:var(--text)">One source of truth.</strong> <span class="doc-term">BP_YoteiGameInstance</span> is the only place runtime quest state lives. No system caches a copy.</li>
-          <li><strong style="color:var(--text)">Data in tables, not assets.</strong> All quest content lives in a JSON-imported Data Table. Adding a quest means adding a row, not a new Blueprint asset.</li>
-          <li><strong style="color:var(--text)">Additive design.</strong> Every system is built so new features add nodes and fields rather than rewiring what already works.</li>
+          <li>Every widget subscribes to an Event Dispatcher and only updates when something changes. Nothing reads state in Tick.</li>
+          <li><span class="doc-term">BP_YoteiGameInstance</span> is the only place runtime quest state lives. No system caches a copy.</li>
+          <li>All quest content lives in a JSON-imported Data Table. Adding a quest means adding a row, not a new Blueprint asset.</li>
+          <li>Every system is built so new features add nodes and fields rather than rewiring what already works.</li>
         </ul>
       </article>
 
@@ -669,12 +669,12 @@ Camera → LookAt(Midpoint)</div>
 
         <h2 class="doc-h2">Next: To Impress Studios</h2>
         <ul class="doc-ul">
-          <li><strong style="color:var(--text)">Settler trigger</strong>: closest to done. Interaction is wired, just needs the draw hook and dialogue.</li>
-          <li><strong style="color:var(--text)">Camp trigger</strong>: weighted visitor table, then visitor dialogue, then draw.</li>
-          <li><strong style="color:var(--text)">Bounty Board</strong>: board actor, interact, draw directly from Combat pool. No dialogue needed.</li>
-          <li><strong style="color:var(--text)">Combat system</strong>: melee core, parry, dodge.</li>
-          <li><strong style="color:var(--text)">Enemy NPC</strong>: patrol AI, squad tracking, interrogation trigger (last enemy calls draw).</li>
-          <li><strong style="color:var(--text)">Ally recruitment</strong>: the payoff the Quest Director was built to deliver. A Side Quest completion hands over an ally, completing the catch-up loop the weighted system promises.</li>
+          <li>Settler trigger: closest to done. Interaction is wired, just needs the draw hook and dialogue.</li>
+          <li>Camp trigger: weighted visitor table, then visitor dialogue, then draw.</li>
+          <li>Bounty Board: board actor, interact, draw directly from Combat pool. No dialogue needed.</li>
+          <li>Combat system: melee core, parry, dodge.</li>
+          <li>Enemy NPC: patrol AI, squad tracking, interrogation trigger (last enemy calls draw).</li>
+          <li>Ally recruitment: the payoff the Quest Director was built to deliver. A Side Quest completion hands over an ally, completing the catch-up loop the weighted system promises.</li>
         </ul>
 
         <h2 class="doc-h2">Dependency Order</h2>
